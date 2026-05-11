@@ -599,8 +599,33 @@ const Stack = ({ t }) => (
 /* ---------- Cases ---------- */
 const CaseCard = ({ c, open, onToggle }) => {
   const Mockup = window.CaseMockups && window.CaseMockups[c.id];
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const card = cardRef.current;
+    if (!card) return;
+
+    const scrollToHeader = () => {
+      const rect = card.getBoundingClientRect();
+      const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 56;
+      const targetTop = Math.max(12, scrollPadding + 12);
+      window.scrollTo({
+        top: Math.max(0, window.scrollY + rect.top - targetTop),
+        behavior: "smooth",
+      });
+    };
+
+    const raf = requestAnimationFrame(scrollToHeader);
+    const settleTimer = setTimeout(scrollToHeader, 380);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(settleTimer);
+    };
+  }, [open]);
+
   return (
-    <div className={`case-card case-${c.id}`}>
+    <div ref={cardRef} className={`case-card case-${c.id}`}>
       <div className="case-head" onClick={onToggle}>
         <div className="code">{c.code}</div>
         <div>
@@ -709,9 +734,9 @@ const Timeline = ({ t }) => (
           <div key={i} className="row">
             <span className="when">{row.when}</span>
             <span className="graph">{i === 0 ? "●" : "│"}</span>
-            <span>
+            <span className="entry">
               <span className="hash">{shortHash(row.title + row.org)}</span>
-              <span className="title" style={{ marginLeft: 10 }}>{row.title}</span>
+              <span className="title">{row.title}</span>
               <span className="org">— {row.org}</span>
             </span>
             <span className="note">{row.note}</span>

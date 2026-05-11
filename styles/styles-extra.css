@@ -1414,9 +1414,65 @@ image-slot:hover {
 
 /* Timeline mobile */
 @media (max-width: 640px) {
-  .gitlog { padding: 14px 16px; font-size: 12px; }
-  .gitlog .row { padding: 10px 0; }
-  .gitlog .title { font-size: 13px; }
+  .gitlog { padding: 18px 20px; font-size: 12px; }
+  .gitlog .row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    padding: 20px 0 20px 18px;
+    position: relative;
+  }
+  .gitlog .row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 24px;
+    bottom: 20px;
+    width: 1px;
+    background: var(--line-2);
+  }
+  .gitlog .row::after {
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 25px;
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  .gitlog .graph,
+  .gitlog .hash { display: none; }
+  .gitlog .when {
+    font-size: 14px;
+    line-height: 1.2;
+    margin-bottom: 9px;
+  }
+  .gitlog .entry {
+    display: grid;
+    gap: 4px;
+  }
+  .gitlog .title {
+    font-size: 15.5px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+  .gitlog .org {
+    margin: 0;
+    color: var(--fg-dim);
+    font-size: 13px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .gitlog .note {
+    grid-column: auto;
+    text-align: left;
+    margin-top: 6px;
+    max-width: none;
+    color: var(--fg-dim);
+    font-size: 13.5px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
 }
 
 /* FAQ mobile */
