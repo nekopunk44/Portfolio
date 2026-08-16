@@ -570,7 +570,23 @@ const CaseCard = ({ c, open, onToggle }) => {
       </div>
       <SmoothCollapse open={open} className="case-collapse">
         <div id={`case-body-${c.id}`} className="case-body">
+          {c.shot && (
+            <figure className="case-shot">
+              {/* real product, not a stylised mock-up */}
+              <img src={c.shot} alt={c.shotAlt || c.name} loading="lazy" decoding="async" width="1944" height="1215" />
+              {c.links && c.links.live && (
+                <figcaption>{c.links.live.replace(/^https?:\/\//, "")}</figcaption>
+              )}
+            </figure>
+          )}
           <div>
+            {c.context && (
+              <>
+                <h4>// task</h4>
+                <p className="case-context">{c.context}</p>
+              </>
+            )}
+            <h4>// solution</h4>
             <p className="summary">{c.summary}</p>
             <h4>// features</h4>
             <ul className="features">
@@ -584,7 +600,7 @@ const CaseCard = ({ c, open, onToggle }) => {
               <div className="case-links">
                 {c.links.live && (
                   <a href={c.links.live} target="_blank" rel="noreferrer" className="is-live">
-                    <b>↗</b> live
+                    <b>↗</b> {c.links.liveLabel || "live"}
                   </a>
                 )}
                 {c.links.repo && (

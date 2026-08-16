@@ -118,6 +118,9 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "villa-jaconda",
           code: "case_01",
+          shot: "assets/cases/villa-jaconda.jpg",
+          shotAlt: "Главная страница сайта Villa Jaconda",
+          context: "Свести бронирование, программу лояльности и управление в одно приложение: гость видит актуальную занятость и свои бонусы, владелец — выручку, события и начисления.",
           name: "Villa Jaconda",
           kind: "Кроссплатформенное приложение · бронирование и лояльность",
           role: "Fullstack / Lead",
@@ -139,12 +142,14 @@ window.PORTFOLIO_CONTENT = {
           ],
           links: {
             live: "https://villajaconda.com",
+            liveLabel: "сайт виллы",
             repo: "https://github.com/nekopunk44/Loyalty_app",
           },
         },
         {
           id: "avtotime",
           code: "case_02",
+          context: "Автолюбитель ищет машину на одной площадке, общается на другой, готовится к экзамену на третьей. Задача — собрать три сценария в одном продукте так, чтобы не чувствовалась склейка.",
           name: "Avtotime",
           kind: "Соц-сеть + маркетплейс + обучение",
           role: "Fullstack",
@@ -172,6 +177,9 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "momentumx",
           code: "case_03",
+          shot: "assets/cases/momentumx.jpg",
+          shotAlt: "Главный экран сайта MomentumX с анимированной WebGL-сценой",
+          context: "Агентству нужен сайт, который продаёт сам: показывает уровень работ, считает цену под регион клиента и не теряет ни одной заявки.",
           name: "MomentumX",
           kind: "Сайт digital-агентства · WebGL + .NET",
           role: "Fullstack / 3D",
@@ -198,6 +206,7 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "aura-scanner",
           code: "case_04",
+          context: "Оцифровать, распознать и подписать документ прямо с телефона — без сканера и без пересылки файлов туда-обратно.",
           name: "Aura Scanner",
           kind: "Мобильный сканер документов · Flutter",
           role: "Fullstack / Mobile",
@@ -223,6 +232,7 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "quant",
           code: "case_05",
+          context: "Торговая идея всегда звучит убедительно. Задача — отличать настоящее преимущество от совпадения статистикой, а не на глаз.",
           name: "AI-Quant Insights",
           kind: "Исследовательская система · данные + LLM",
           role: "Fullstack / Data",
@@ -457,6 +467,9 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "villa-jaconda",
           code: "case_01",
+          shot: "assets/cases/villa-jaconda.jpg",
+          shotAlt: "Villa Jaconda website home page",
+          context: "Fold booking, the loyalty programme and back-office into one app: the guest sees real availability and their own points, the owner sees revenue, events and payouts.",
           name: "Villa Jaconda",
           kind: "Cross-platform app · booking and loyalty",
           role: "Fullstack / Lead",
@@ -478,12 +491,14 @@ window.PORTFOLIO_CONTENT = {
           ],
           links: {
             live: "https://villajaconda.com",
+            liveLabel: "villa website",
             repo: "https://github.com/nekopunk44/Loyalty_app",
           },
         },
         {
           id: "avtotime",
           code: "case_02",
+          context: "A driver shops for a car on one site, talks on another, revises for the exam on a third. The task was to fold all three into one product without it feeling stitched together.",
           name: "Avtotime",
           kind: "Social network + marketplace + learning",
           role: "Fullstack",
@@ -511,6 +526,9 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "momentumx",
           code: "case_03",
+          shot: "assets/cases/momentumx.jpg",
+          shotAlt: "MomentumX home screen with its animated WebGL scene",
+          context: "An agency needs a site that sells on its own: it has to show the standard of the work, price by the visitor’s region and never drop an enquiry.",
           name: "MomentumX",
           kind: "Digital agency site · WebGL + .NET",
           role: "Fullstack / 3D",
@@ -537,6 +555,7 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "aura-scanner",
           code: "case_04",
+          context: "Capture, recognise and sign a document straight from the phone — no scanner, no mailing files back and forth.",
           name: "Aura Scanner",
           kind: "Mobile document scanner · Flutter",
           role: "Fullstack / Mobile",
@@ -562,6 +581,7 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "quant",
           code: "case_05",
+          context: "A trading idea always sounds convincing. The task is to tell a real edge from a coincidence with statistics rather than by eye.",
           name: "AI-Quant Insights",
           kind: "Research system · data + LLM",
           role: "Fullstack / Data",
