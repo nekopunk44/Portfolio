@@ -1457,34 +1457,6 @@ image-slot:hover {
   .cursor { animation: none; opacity: 1; }
 }
 
-/* ===========================================================
-   Case screenshot — the real product, spanning the whole body
-   =========================================================== */
-.case-shot {
-  grid-column: 1 / -1;
-  margin: 0 0 28px;
-  border: 1px solid var(--line-2);
-  background: var(--bg-3);
-  overflow: hidden;
-}
-.case-shot img {
-  display: block;
-  width: 100%;
-  height: auto;
-  /* the capture is a wide viewport; crop rather than letterbox on narrow cards */
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  object-position: top center;
-}
-.case-shot figcaption {
-  border-top: 1px solid var(--line);
-  padding: 7px 12px;
-  color: var(--fg-faint);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  background: var(--bg-2);
-}
-
 /* "// task" sets up the problem before "// solution" answers it */
 .case-body .case-context {
   color: var(--fg-dim);
@@ -1494,7 +1466,3 @@ image-slot:hover {
   border-left: 1px solid var(--accent);
 }
 
-@media (max-width: 640px) {
-  .case-shot { margin-bottom: 20px; }
-  .case-shot img { aspect-ratio: 4 / 3; }
-}

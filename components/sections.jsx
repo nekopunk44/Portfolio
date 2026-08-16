@@ -570,15 +570,6 @@ const CaseCard = ({ c, open, onToggle }) => {
       </div>
       <SmoothCollapse open={open} className="case-collapse">
         <div id={`case-body-${c.id}`} className="case-body">
-          {c.shot && (
-            <figure className="case-shot">
-              {/* real product, not a stylised mock-up */}
-              <img src={c.shot} alt={c.shotAlt || c.name} loading="lazy" decoding="async" width="1944" height="1215" />
-              {c.links && c.links.live && (
-                <figcaption>{c.links.live.replace(/^https?:\/\//, "")}</figcaption>
-              )}
-            </figure>
-          )}
           <div>
             {c.context && (
               <>

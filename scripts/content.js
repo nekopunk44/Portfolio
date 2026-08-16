@@ -118,8 +118,6 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "villa-jaconda",
           code: "case_01",
-          shot: "assets/cases/villa-jaconda.jpg",
-          shotAlt: "Главная страница сайта Villa Jaconda",
           context: "Свести бронирование, программу лояльности и управление в одно приложение: гость видит актуальную занятость и свои бонусы, владелец — выручку, события и начисления.",
           name: "Villa Jaconda",
           kind: "Кроссплатформенное приложение · бронирование и лояльность",
@@ -177,8 +175,6 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "momentumx",
           code: "case_03",
-          shot: "assets/cases/momentumx.jpg",
-          shotAlt: "Главный экран сайта MomentumX с анимированной WebGL-сценой",
           context: "Агентству нужен сайт, который продаёт сам: показывает уровень работ, считает цену под регион клиента и не теряет ни одной заявки.",
           name: "MomentumX",
           kind: "Сайт digital-агентства · WebGL + .NET",
@@ -467,8 +463,6 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "villa-jaconda",
           code: "case_01",
-          shot: "assets/cases/villa-jaconda.jpg",
-          shotAlt: "Villa Jaconda website home page",
           context: "Fold booking, the loyalty programme and back-office into one app: the guest sees real availability and their own points, the owner sees revenue, events and payouts.",
           name: "Villa Jaconda",
           kind: "Cross-platform app · booking and loyalty",
@@ -526,8 +520,6 @@ window.PORTFOLIO_CONTENT = {
         {
           id: "momentumx",
           code: "case_03",
-          shot: "assets/cases/momentumx.jpg",
-          shotAlt: "MomentumX home screen with its animated WebGL scene",
           context: "An agency needs a site that sells on its own: it has to show the standard of the work, price by the visitor’s region and never drop an enquiry.",
           name: "MomentumX",
           kind: "Digital agency site · WebGL + .NET",
