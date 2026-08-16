@@ -520,7 +520,6 @@ const Stack = ({ t }) => (
 
 /* ---------- Cases ---------- */
 const CaseCard = ({ c, open, onToggle }) => {
-  const Mockup = window.CaseMockups && window.CaseMockups[c.id];
   const cardRef = useRef(null);
 
   useEffect(() => {
@@ -570,7 +569,7 @@ const CaseCard = ({ c, open, onToggle }) => {
         </div>
       </div>
       <SmoothCollapse open={open} className="case-collapse">
-        <div id={`case-body-${c.id}`} className={`case-body ${Mockup ? "with-mockup" : ""}`}>
+        <div id={`case-body-${c.id}`} className="case-body">
           <div>
             <p className="summary">{c.summary}</p>
             <h4>// features</h4>
@@ -596,11 +595,6 @@ const CaseCard = ({ c, open, onToggle }) => {
               </div>
             )}
           </div>
-          {Mockup && (
-            <div className="case-mockup">
-              <Mockup />
-            </div>
-          )}
           <div className="case-metrics">
             {c.metrics.map(m => (
               <div key={m.v} className="metric">
@@ -707,21 +701,35 @@ const Timeline = ({ t }) => (
   <section id="timeline" className="section">
     <div className="section-head">
       <h2 className="label">{t.sectionLabels.timeline}</h2>
-      <div className="cmd">git log --oneline --career</div>
+      <div className="cmd">git log --career</div>
     </div>
     <Reveal>
       <div className="gitlog">
         {t.timeline.map((row, i) => (
-          <div key={i} className="row">
-            <span className="when">{row.when}</span>
-            <span className="graph">{i === 0 ? "●" : "│"}</span>
-            <span className="entry">
-              <span className="hash">{shortHash(row.title + row.org)}</span>
-              <span className="title">{row.title}</span>
-              <span className="org">— {row.org}</span>
-            </span>
-            <span className="note">{row.note}</span>
-          </div>
+          <article key={i} className={`commit ${i === 0 ? "is-head" : ""}`}>
+            <div className="commit-rail" aria-hidden="true"><span className="node" /></div>
+            <div className="commit-body">
+              <div className="commit-meta">
+                <span className="hash">{shortHash(row.title + row.org)}</span>
+                <span className="when">{row.when}</span>
+                {i === 0 && <span className="head-tag">HEAD</span>}
+              </div>
+              <h3 className="commit-title">
+                {row.title}<span className="org"> — {row.org}</span>
+              </h3>
+              {row.summary && <p className="commit-summary">{row.summary}</p>}
+              {row.items && (
+                <ul className="commit-items">
+                  {row.items.map(item => <li key={item}>{item}</li>)}
+                </ul>
+              )}
+              {row.stack && (
+                <div className="commit-stack">
+                  {row.stack.map(s => <span key={s}>{s}</span>)}
+                </div>
+              )}
+            </div>
+          </article>
         ))}
       </div>
     </Reveal>
@@ -734,10 +742,19 @@ const Contact = ({ t, profile }) => {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  /* Spam trap: bots fill every field they find, humans never see this one.
+     FormSubmit discards any submission where _honey is non-empty. */
+  const [honey, setHoney] = useState("");
   const onChange = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
   const onSend = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.msg || sending) return;
+    if (sending) return;
+    /* say why nothing happened instead of silently ignoring the click */
+    if (!form.name || !form.email || !form.msg) {
+      setSent(false);
+      setError(t.contact.incomplete);
+      return;
+    }
 
     setSending(true);
     setSent(false);
@@ -750,6 +767,7 @@ const Contact = ({ t, profile }) => {
     payload.append("_subject", `Portfolio inquiry from ${form.name}`);
     payload.append("_template", "table");
     payload.append("_captcha", "false");
+    payload.append("_honey", honey);
 
     try {
       const response = await fetch(`https://formsubmit.co/ajax/${profile.email}`, {
@@ -757,15 +775,27 @@ const Contact = ({ t, profile }) => {
         headers: { Accept: "application/json" },
         body: payload,
       });
-      if (!response.ok) throw new Error("FormSubmit request failed");
+      /* FormSubmit answers 200 with {"success":"false"} for an unactivated form
+         and other soft failures, so response.ok alone is not proof of delivery.
+         Reporting success here would silently swallow real enquiries. */
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data || String(data.success) !== "true") {
+        throw new Error(data && data.message ? data.message : "FormSubmit rejected the submission");
+      }
       setSent(true);
       setForm({ name: "", email: "", msg: "" });
     } catch (err) {
-      setError("Не удалось отправить. Напишите в Telegram или WhatsApp.");
+      console.warn("Contact form submission failed:", err && err.message);
+      setError(t.contact.error);
     } finally {
       setSending(false);
     }
   };
+  const mailtoFallback =
+    `mailto:${profile.email}` +
+    `?subject=${encodeURIComponent(`Portfolio inquiry from ${form.name || "site visitor"}`)}` +
+    `&body=${encodeURIComponent(`${form.msg}\n\n— ${form.name}\n${form.email}`)}`;
+
   return (
     <section id="contact" className="section">
       <div className="section-head">
@@ -804,12 +834,33 @@ const Contact = ({ t, profile }) => {
               <label>› message</label>
               <textarea rows={4} name="message" placeholder={t.contact.fields.msg} value={form.msg} onChange={onChange("msg")} />
 
+              <input
+                type="text"
+                name="_honey"
+                className="honeypot"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                value={honey}
+                onChange={(e) => setHoney(e.target.value)}
+              />
+
               <div className="send-row">
                 <span style={{ color: "var(--fg-faint)", fontSize: 12 }}>{sending ? "transmitting..." : "press enter to transmit"}</span>
                 <button className="send-btn" type="submit" disabled={sending}>{sending ? "sending..." : t.contact.send}</button>
               </div>
-              {sent && <div className="success">{t.contact.success}</div>}
-              {error && <div className="form-error">{error}</div>}
+              {/* announced to screen readers as soon as it changes */}
+              <div className="form-status" role="status" aria-live="polite">
+                {sent && <div className="success">{t.contact.success}</div>}
+                {error && (
+                  <div className="form-error">
+                    {error}
+                    {/* no enquiry should die because a third-party service is down:
+                        hand the visitor their own text, ready to send */}
+                    <a className="form-fallback" href={mailtoFallback}>{t.contact.fallback}</a>
+                  </div>
+                )}
+              </div>
             </div>
           </form>
         </Reveal>
