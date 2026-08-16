@@ -744,64 +744,33 @@ const Timeline = ({ t }) => (
 );
 
 /* ---------- Contact ---------- */
-const Contact = ({ t, profile }) => {
-  const [form, setForm] = useState({ name: "", email: "", msg: "" });
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  /* Spam trap: bots fill every field they find, humans never see this one.
-     FormSubmit discards any submission where _honey is non-empty. */
-  const [honey, setHoney] = useState("");
-  const onChange = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
-  const onSend = async (e) => {
-    e.preventDefault();
-    if (sending) return;
-    /* say why nothing happened instead of silently ignoring the click */
-    if (!form.name || !form.email || !form.msg) {
-      setSent(false);
-      setError(t.contact.incomplete);
-      return;
-    }
 
-    setSending(true);
-    setSent(false);
-    setError("");
-
-    const payload = new FormData();
-    payload.append("name", form.name);
-    payload.append("email", form.email);
-    payload.append("message", form.msg);
-    payload.append("_subject", `Portfolio inquiry from ${form.name}`);
-    payload.append("_template", "table");
-    payload.append("_captcha", "false");
-    payload.append("_honey", honey);
-
-    try {
-      const response = await fetch(`https://formsubmit.co/ajax/${profile.email}`, {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body: payload,
-      });
-      /* FormSubmit answers 200 with {"success":"false"} for an unactivated form
-         and other soft failures, so response.ok alone is not proof of delivery.
-         Reporting success here would silently swallow real enquiries. */
-      const data = await response.json().catch(() => null);
-      if (!response.ok || !data || String(data.success) !== "true") {
-        throw new Error(data && data.message ? data.message : "FormSubmit rejected the submission");
-      }
-      setSent(true);
-      setForm({ name: "", email: "", msg: "" });
-    } catch (err) {
-      console.warn("Contact form submission failed:", err && err.message);
-      setError(t.contact.error);
-    } finally {
-      setSending(false);
-    }
+/* ---------- Contact ---------- */
+/* Line icons only — the site is built from 1px rules and wireframes, so filled
+   brand marks would sit outside its language. */
+const ChannelIcon = ({ name }) => {
+  const paths = {
+    telegram: "M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z",
+    whatsapp: "M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.9-.9L3 21l2-5.1a8.4 8.4 0 0 1-.9-3.9 8.4 8.4 0 0 1 8.4-8.4h.5a8.4 8.4 0 0 1 8 8v.4z",
+    email: "M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z M22 7l-10 6.5L2 7",
+    github: "M6 3v12M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 9a9 9 0 0 1-9 9",
   };
-  const mailtoFallback =
-    `mailto:${profile.email}` +
-    `?subject=${encodeURIComponent(`Portfolio inquiry from ${form.name || "site visitor"}`)}` +
-    `&body=${encodeURIComponent(`${form.msg}\n\n— ${form.name}\n${form.email}`)}`;
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+         strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true" focusable="false">
+      {paths[name].split(" M").map((d, i) => <path key={i} d={i ? "M" + d : d} />)}
+    </svg>
+  );
+};
+
+const Contact = ({ t, profile }) => {
+  const digits = (profile.whatsapp || "").replace(/\D/g, "");
+  const channels = [
+    { id: "telegram", href: `https://t.me/${profile.telegram.replace("@", "")}`, value: profile.telegram, external: true },
+    { id: "whatsapp", href: `https://wa.me/${digits}`, value: profile.whatsapp || profile.telegram, external: true },
+    { id: "email", href: `mailto:${profile.email}`, value: profile.email, external: false },
+    { id: "github", href: profile.github, value: profile.handle, external: true },
+  ];
 
   return (
     <section id="contact" className="section">
@@ -814,62 +783,28 @@ const Contact = ({ t, profile }) => {
           <div className="contact-text">
             <h2>{t.contact.title}</h2>
             <p>{t.contact.body}</p>
-            <div className="contact-links">
-              <a href={`mailto:${profile.email}`}><span className="k">email</span><span className="v">{profile.email}</span></a>
-              <a href={`https://t.me/${profile.telegram.replace("@","")}`} target="_blank" rel="noreferrer"><span className="k">telegram</span><span className="v">{profile.telegram}</span></a>
-              <a href={`https://wa.me/${(profile.whatsapp||"").replace(/\D/g,"")}`} target="_blank" rel="noreferrer"><span className="k">whatsapp</span><span className="v">{profile.whatsapp || profile.telegram}</span></a>
-              <a href={profile.github} target="_blank" rel="noreferrer"><span className="k">github</span><span className="v">{profile.handle}</span></a>
-            </div>
           </div>
         </Reveal>
         <Reveal delay={0.12}>
-          <form className="term" onSubmit={onSend}>
-            <div className="term-head">
-              <div className="dots"><i /><i /><i /></div>
-              <span>bash — contact@vlad ~ 80×24</span>
-            </div>
-            <div className="term-body">
-              <div className="line"><span className="prompt">$ </span>./contact --new</div>
-              <div className="dim">// заполните поля и нажмите send</div>
-
-              <label>› name</label>
-              <input type="text" name="name" placeholder={t.contact.fields.name} value={form.name} onChange={onChange("name")} />
-
-              <label>› email</label>
-              <input type="email" name="email" placeholder={t.contact.fields.email} value={form.email} onChange={onChange("email")} />
-
-              <label>› message</label>
-              <textarea rows={4} name="message" placeholder={t.contact.fields.msg} value={form.msg} onChange={onChange("msg")} />
-
-              <input
-                type="text"
-                name="_honey"
-                className="honeypot"
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                value={honey}
-                onChange={(e) => setHoney(e.target.value)}
-              />
-
-              <div className="send-row">
-                <span style={{ color: "var(--fg-faint)", fontSize: 12 }}>{sending ? "transmitting..." : "press enter to transmit"}</span>
-                <button className="send-btn" type="submit" disabled={sending}>{sending ? "sending..." : t.contact.send}</button>
-              </div>
-              {/* announced to screen readers as soon as it changes */}
-              <div className="form-status" role="status" aria-live="polite">
-                {sent && <div className="success">{t.contact.success}</div>}
-                {error && (
-                  <div className="form-error">
-                    {error}
-                    {/* no enquiry should die because a third-party service is down:
-                        hand the visitor their own text, ready to send */}
-                    <a className="form-fallback" href={mailtoFallback}>{t.contact.fallback}</a>
-                  </div>
-                )}
-              </div>
-            </div>
-          </form>
+          <div className="channels">
+            {channels.map((ch, i) => (
+              <a
+                key={ch.id}
+                className="channel"
+                href={ch.href}
+                {...(ch.external ? { target: "_blank", rel: "noreferrer" } : {})}
+                style={{ animationDelay: `${i * 0.06}s` }}
+              >
+                <span className="channel-icon"><ChannelIcon name={ch.id} /></span>
+                <span className="channel-text">
+                  <span className="channel-k">{ch.id}</span>
+                  <span className="channel-v">{ch.value}</span>
+                </span>
+                <span className="channel-hint">{t.contact.channels[ch.id]}</span>
+                <span className="channel-go" aria-hidden="true">→</span>
+              </a>
+            ))}
+          </div>
         </Reveal>
       </div>
     </section>
