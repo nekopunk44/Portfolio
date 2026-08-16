@@ -135,11 +135,39 @@ const __TWEAKS_STYLE = `
 // ── useTweaks ───────────────────────────────────────────────────────────────
 // Single source of truth for tweak values. setTweak persists via the host
 // (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+const TWEAKS_STORAGE_KEY = 'portfolio.tweaks';
+
+function readStoredTweaks(defaults) {
+  const initial = { ...defaults };
+  /* first visit: follow the OS motion preference and the browser language */
+  if (typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    initial.motion = 'low';
+  }
+  if (typeof navigator !== 'undefined' && !String(navigator.language || '').toLowerCase().startsWith('ru')) {
+    initial.lang = 'en';
+  }
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(TWEAKS_STORAGE_KEY) || '{}');
+    /* only keys the app knows about — stale entries are dropped */
+    for (const key of Object.keys(defaults)) {
+      if (key in saved) initial[key] = saved[key];
+    }
+  } catch (e) { /* private mode / disabled storage — fall back to defaults */ }
+  return initial;
+}
+
 function useTweaks(defaults) {
-  const [values, setValues] = React.useState(defaults);
+  const [values, setValues] = React.useState(() => readStoredTweaks(defaults));
   const setTweak = React.useCallback((key, val) => {
-    setValues((prev) => ({ ...prev, [key]: val }));
-    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+    setValues((prev) => {
+      const next = { ...prev, [key]: val };
+      try { window.localStorage.setItem(TWEAKS_STORAGE_KEY, JSON.stringify(next)); } catch (e) { /* ignore */ }
+      return next;
+    });
+    try {
+      window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+    } catch (e) { /* no edit-mode host in production */ }
   }, []);
   return [values, setTweak];
 }

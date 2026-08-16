@@ -24,30 +24,45 @@ const Reveal = ({ children, delay = 0, className = "" }) => {
 };
 
 /* ---------- Boot Sequence ---------- */
+/* Exit dissolve length — must stay in sync with the .boot transition in CSS. */
+const BOOT_EXIT_MS = 900;
+
 const Boot = ({ lines, onDone, enabled }) => {
   const [idx, setIdx] = useState(0);
   const [progress, setProgress] = useState(0);
   const [gone, setGone] = useState(!enabled);
+  /* The veil unmounts itself only after the dissolve has finished. If the parent
+     removed it the moment onDone fired, the exit transition would never render. */
+  const [finished, setFinished] = useState(!enabled);
 
   useEffect(() => {
-    if (!enabled) { setGone(true); onDone && onDone(); return; }
+    if (!enabled) { setGone(true); setFinished(true); onDone && onDone(); return; }
     const total = lines.length;
     let i = 0;
+    let timer = 0;
+    let exitTimer = 0;
     const step = () => {
       if (i < total) {
         setIdx(i + 1);
         setProgress(Math.round(((i + 1) / total) * 100));
         i++;
-        setTimeout(step, 220 + Math.random() * 130);
+        /* Deterministic, gently decelerating cadence. Random jitter read as stutter. */
+        timer = setTimeout(step, 180 + i * 26);
       } else {
-        setTimeout(() => { setGone(true); onDone && onDone(); }, 320);
+        /* hold on the full bar for a beat, then dissolve */
+        timer = setTimeout(() => {
+          setGone(true);
+          /* hero starts rising now, underneath — the two crossfade */
+          onDone && onDone();
+          exitTimer = setTimeout(() => setFinished(true), BOOT_EXIT_MS);
+        }, 520);
       }
     };
-    const t = setTimeout(step, 240);
-    return () => clearTimeout(t);
+    timer = setTimeout(step, 260);
+    return () => { clearTimeout(timer); clearTimeout(exitTimer); };
   }, [enabled]);
 
-  if (!enabled) return null;
+  if (finished) return null;
   return (
     <div className={`boot ${gone ? "gone" : ""}`}>
       <div className="boot-box">
@@ -61,71 +76,6 @@ const Boot = ({ lines, onDone, enabled }) => {
         <div className="boot-bar"><div className="fill" style={{ width: `${progress}%` }} /></div>
       </div>
     </div>
-  );
-};
-
-/* ---------- Hero ---------- */
-const Hero = ({ t, profile, motionLevel, bootDone }) => {
-  const [typed, setTyped] = useState("");
-  const target = profile.name;
-  useEffect(() => {
-    if (!bootDone) return;
-    let i = 0;
-    const id = setInterval(() => {
-      i++;
-      setTyped(target.slice(0, i));
-      if (i >= target.length) clearInterval(id);
-    }, 75);
-    return () => clearInterval(id);
-  }, [bootDone, target]);
-
-  const now = new Date();
-  const uptime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
-
-  return (
-    <section id="home" className="hero">
-      <HeroCanvas motionLevel={motionLevel} />
-      <div className="hero-content">
-        <div className="hero-upper" style={{ position: "relative", top: 0, marginBottom: 60 }}>
-          <div className="meta-block">
-            <span className="k">LOCATION</span>
-            <span className="v">{profile.location}</span>
-          </div>
-          <div className="meta-block">
-            <span className="k">EXPERIENCE</span>
-            <span className="v">{profile.years} YEARS</span>
-          </div>
-          <div className="meta-block">
-            <span className="k">UPTIME</span>
-            <span className="v" style={{ color: "var(--accent)" }}>{uptime}</span>
-          </div>
-          <div className="meta-block">
-            <span className="k">HANDLE</span>
-            <span className="v">{profile.handle}</span>
-          </div>
-        </div>
-
-        <div className="status-pill"><i className="blip" />{t.status}</div>
-        <h1 className="hero-name glitch" data-text={typed}>
-          {typed || "\u00A0"}<span className="cursor" />
-        </h1>
-        <div className="hero-role">{t.heroRole}</div>
-        <p className="hero-tagline">{t.heroTagline}</p>
-        <div className="hero-actions">
-          <a href="#contact" className="btn primary">{t.heroCta}</a>
-          <a href="#cases" className="btn">~/cases</a>
-          <button className="btn" onClick={() => window.dispatchEvent(new CustomEvent("open-terminal"))}>./shell</button>
-        </div>
-
-        {t.marquee && (
-          <div className="marquee">
-            <div className="marquee-track">
-              {[...t.marquee, ...t.marquee].map((m, i) => <span key={i}><b>◆</b>{m}</span>)}
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
   );
 };
 
@@ -391,7 +341,7 @@ const AboutScene3D = () => {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('touchmove', onMove, { passive: true });
 
-    let raf, fc = 0;
+    let fc = 0;
     const animate = () => {
       autoRot += 0.006;
       fc++;
@@ -424,9 +374,8 @@ const AboutScene3D = () => {
       }
 
       renderer.render(scene, camera);
-      raf = requestAnimationFrame(animate);
     };
-    animate();
+    const stopLoop = window.rafScene(mount, animate);
 
     const onResize = () => {
       camera.aspect = W() / H();
@@ -438,7 +387,7 @@ const AboutScene3D = () => {
     window.addEventListener('resize', onResize);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopLoop();
       window.removeEventListener('mouseup', onUp);
       window.removeEventListener('touchend', onUp);
       window.removeEventListener('mousemove', onMove);
@@ -463,7 +412,7 @@ const AsciiPortrait = () => <AboutScene3D />;
 const About = ({ t, profile }) => (
   <section id="about" className="section">
     <div className="section-head">
-      <div className="label">{t.sectionLabels.about}</div>
+      <h2 className="label">{t.sectionLabels.about}</h2>
       <div className="cmd">{t.about.cmd}</div>
     </div>
     <div className="about-grid">
@@ -494,37 +443,8 @@ const About = ({ t, profile }) => (
 /* ---------- Stack (all-visible categorized grid) ---------- */
 const STACK_ICONS = {
   "frontend/": "◈", "mobile/": "◉", "backend/": "◆",
-  "databases/": "◇", "devops/": "▣", "tools/": "◎",
+  "databases/": "◇", "devops/": "▣", "integrations/": "⬡", "tools/": "◎",
 };
-
-const LegacyStack = ({ t }) => (
-  <section id="stack" className="section">
-    <div className="section-head">
-      <div className="label">{t.sectionLabels.stack}</div>
-      <div className="cmd">{t.stack.cmd}</div>
-    </div>
-    <Reveal>
-      <div className="stk-all">
-        {t.stack.groups.map((g, gi) => (
-          <div key={g.name} className="stk-group" style={{ animationDelay: `${gi * 0.07}s` }}>
-            <div className="stk-group-head">
-              <span className="stk-group-icon">{STACK_ICONS[g.name] || "◌"}</span>
-              <span className="stk-group-dir">{g.name}</span>
-              <span className="stk-group-n">{g.items.length}</span>
-            </div>
-            <div className="stk-group-items">
-              {g.items.map((item, ii) => (
-                <span key={item} className="stk-item" style={{ animationDelay: `${gi * 0.07 + ii * 0.03}s` }}>
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Reveal>
-  </section>
-);
 
 const STACK_LABELS = {
   "frontend/": "UI",
@@ -532,6 +452,7 @@ const STACK_LABELS = {
   "backend/": "API",
   "databases/": "DB",
   "devops/": "OPS",
+  "integrations/": "INT",
   "tools/": "TL",
 };
 
@@ -541,13 +462,14 @@ const STACK_META = {
   "backend/": { n: "03", role: "server", hint: "API / realtime / auth" },
   "databases/": { n: "04", role: "data", hint: "storage / cache / search" },
   "devops/": { n: "05", role: "shipping", hint: "deploy / CI / VPS" },
-  "tools/": { n: "06", role: "workflow", hint: "design / debug / handoff" },
+  "integrations/": { n: "06", role: "services", hint: "payments / AI / messaging" },
+  "tools/": { n: "07", role: "workflow", hint: "design / debug / handoff" },
 };
 
 const Stack = ({ t }) => (
   <section id="stack" className="section">
     <div className="section-head">
-      <div className="label">{t.sectionLabels.stack}</div>
+      <h2 className="label">{t.sectionLabels.stack}</h2>
       <div className="cmd">{t.stack.cmd}</div>
     </div>
     <Reveal>
@@ -626,20 +548,29 @@ const CaseCard = ({ c, open, onToggle }) => {
 
   return (
     <div ref={cardRef} className={`case-card case-${c.id}`}>
-      <div className="case-head" onClick={onToggle}>
+      <div className="case-head">
         <div className="code">{c.code}</div>
         <div>
-          <div className="title">{c.name}</div>
-          <div style={{ color: "var(--fg-dim)", fontSize: 13, marginTop: 4 }}>{c.kind}</div>
+          <h3 className="title">
+            <button
+              type="button"
+              className="case-toggle"
+              aria-expanded={open}
+              aria-controls={`case-body-${c.id}`}
+              onClick={onToggle}
+            >
+              {c.name}
+            </button>
+          </h3>
+          <div className="case-kind">{c.kind}</div>
         </div>
         <div className="meta">
-          <span className="year">{c.year}</span>
           <span>{c.role}</span>
-          <span style={{ color: "var(--accent)", marginTop: 6 }}>{open ? "[ − ]" : "[ + ]"}</span>
+          <span className="case-sign" aria-hidden="true">{open ? "[ − ]" : "[ + ]"}</span>
         </div>
       </div>
       <SmoothCollapse open={open} className="case-collapse">
-        <div className={`case-body ${Mockup ? "with-mockup" : ""}`}>
+        <div id={`case-body-${c.id}`} className={`case-body ${Mockup ? "with-mockup" : ""}`}>
           <div>
             <p className="summary">{c.summary}</p>
             <h4>// features</h4>
@@ -650,6 +581,20 @@ const CaseCard = ({ c, open, onToggle }) => {
             <div className="case-stack">
               {c.stack.map(s => <span key={s}>{s}</span>)}
             </div>
+            {c.links && (c.links.live || c.links.repo) && (
+              <div className="case-links">
+                {c.links.live && (
+                  <a href={c.links.live} target="_blank" rel="noreferrer" className="is-live">
+                    <b>↗</b> live
+                  </a>
+                )}
+                {c.links.repo && (
+                  <a href={c.links.repo} target="_blank" rel="noreferrer">
+                    <b>{"</>"}</b> source
+                  </a>
+                )}
+              </div>
+            )}
           </div>
           {Mockup && (
             <div className="case-mockup">
@@ -676,7 +621,7 @@ const Process = ({ t }) => {
   return (
   <section id="process" className="section">
     <div className="section-head">
-      <div className="label">{(t.sectionLabels && t.sectionLabels.process) || "04 / PROCESS"}</div>
+      <h2 className="label">{(t.sectionLabels && t.sectionLabels.process) || "05 / PROCESS"}</h2>
       <div className="cmd">{t.process.cmd}</div>
     </div>
     <Reveal>
@@ -701,7 +646,7 @@ const Cases = ({ t }) => {
   return (
     <section id="cases" className="section">
       <div className="section-head">
-        <div className="label">{t.sectionLabels.cases}</div>
+        <h2 className="label">{t.sectionLabels.cases}</h2>
         <div className="cmd">ls -la ./cases</div>
       </div>
       <div className="cases">
@@ -711,6 +656,42 @@ const Cases = ({ t }) => {
           </Reveal>
         ))}
       </div>
+    </section>
+  );
+};
+
+/* ---------- Lab (open-source pet projects) ---------- */
+const Lab = ({ t }) => {
+  if (!t.lab) return null;
+  return (
+    <section id="lab" className="section">
+      <div className="section-head">
+        <h2 className="label">{(t.sectionLabels && t.sectionLabels.lab) || "03 / LAB"}</h2>
+        <div className="cmd">{t.lab.cmd}</div>
+      </div>
+      <Reveal>
+        <p className="lab-note">{t.lab.note}</p>
+        <div className="lab-grid">
+          {t.lab.items.map((it, i) => (
+            <article key={it.name} className="lab-card" style={{ animationDelay: `${i * 0.06}s` }}>
+              <div className="lab-card-top">
+                <span className="lab-index">{String(i + 1).padStart(2, "0")}</span>
+                <span className="lab-lang">{it.lang}</span>
+              </div>
+              <h3 className="lab-name">{it.name}</h3>
+              <div className="lab-kind">{it.kind}</div>
+              <p className="lab-desc">{it.desc}</p>
+              <div className="lab-tags">
+                {it.tags.map(tag => <span key={tag}>{tag}</span>)}
+              </div>
+              <div className="lab-links">
+                {it.live && <a href={it.live} target="_blank" rel="noreferrer" className="is-live"><b>↗</b> live</a>}
+                {it.repo && <a href={it.repo} target="_blank" rel="noreferrer"><b>{"</>"}</b> source</a>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </Reveal>
     </section>
   );
 };
@@ -725,7 +706,7 @@ const shortHash = (s) => {
 const Timeline = ({ t }) => (
   <section id="timeline" className="section">
     <div className="section-head">
-      <div className="label">{t.sectionLabels.timeline}</div>
+      <h2 className="label">{t.sectionLabels.timeline}</h2>
       <div className="cmd">git log --oneline --career</div>
     </div>
     <Reveal>
@@ -788,7 +769,7 @@ const Contact = ({ t, profile }) => {
   return (
     <section id="contact" className="section">
       <div className="section-head">
-        <div className="label">{t.sectionLabels.contact}</div>
+        <h2 className="label">{t.sectionLabels.contact}</h2>
         <div className="cmd">{t.contact.cmd}</div>
       </div>
       <div className="contact-grid">
@@ -837,4 +818,4 @@ const Contact = ({ t, profile }) => {
   );
 };
 
-Object.assign(window, { Reveal, Boot, Hero, About, Stack, Cases, Process, Timeline, Contact, AnimatedNumber });
+Object.assign(window, { Reveal, Boot, About, Stack, Cases, Lab, Process, Timeline, Contact, AnimatedNumber });

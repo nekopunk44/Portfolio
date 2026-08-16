@@ -47,7 +47,7 @@
   border-top: 1px dashed var(--line);
   border-bottom: 1px dashed var(--line);
   padding: 10px 0;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--fg-dim);
 }
 .marquee-track {
@@ -543,77 +543,6 @@
 }
 .mk-tile b { color: var(--accent); font-size: 11px; font-weight: 400; }
 
-.mockup-3d-browser {
-  width: min(100%, 460px);
-}
-.mockup-browser .studio-viewport {
-  padding: 0;
-  min-height: 330px;
-  background:
-    radial-gradient(circle at 50% 38%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 42%),
-    linear-gradient(180deg, #08090e, #050507);
-}
-.studio-3d-scene {
-  width: 100%;
-  height: 330px;
-  position: relative;
-  overflow: hidden;
-  cursor: grab;
-  user-select: none;
-}
-.studio-3d-scene.is-dragging {
-  cursor: grabbing;
-}
-.studio-3d-scene canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.studio-3d-scene::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(circle at 50% 45%, black 0%, transparent 74%);
-}
-.studio-3d-badge {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 2;
-  padding: 4px 8px;
-  border: 1px solid var(--accent);
-  background: color-mix(in oklab, var(--bg) 82%, transparent);
-  color: var(--accent);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.studio-3d-count {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 2;
-  padding: 4px 8px;
-  border: 1px solid var(--line-2);
-  background: color-mix(in oklab, var(--bg) 82%, transparent);
-  color: var(--fg-dim);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-}
-.studio-3d-caption {
-  position: absolute;
-  right: 14px;
-  bottom: 12px;
-  z-index: 2;
-  color: var(--fg-faint);
-  font-size: 10.5px;
-}
-
 /* mockup column */
 .case-mockup {
   display: flex;
@@ -638,19 +567,9 @@
 .case-avtotime .metric .k {
   font-size: clamp(30px, 3.4vw, 46px);
 }
-.case-studio-3d .case-body.with-mockup {
-  grid-template-columns: minmax(260px, 0.9fr) minmax(430px, 1.35fr) minmax(210px, 0.75fr);
-}
-.case-studio-3d .case-mockup {
-  padding: 0;
-}
-.case-studio-3d .metric .k {
-  font-size: clamp(30px, 3.6vw, 48px);
-}
 @media (max-width: 1000px) {
   .case-body.with-mockup { grid-template-columns: 1fr; }
   .case-avtotime .case-body.with-mockup { grid-template-columns: 1fr; }
-  .case-studio-3d .case-body.with-mockup { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
@@ -804,7 +723,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--fg-dim);
 }
 .term-overlay .head .dots { display: flex; gap: 5px; }
@@ -816,7 +735,7 @@
 .term-overlay .head .close:hover { color: var(--accent); }
 .term-overlay .body {
   padding: 16px 18px;
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--fg);
   overflow-y: auto;
   flex: 1;
@@ -896,7 +815,7 @@
   letter-spacing: -0.02em;
   margin: 0 0 10px;
 }
-.step p { color: var(--fg-dim); font-size: 13.5px; margin: 0 0 10px; }
+.step p { color: var(--fg-dim); font-size: 14px; margin: 0 0 10px; }
 .step .tools { font-size: 11px; color: var(--fg-faint); }
 .step .tools b { color: var(--accent); font-weight: 400; }
 @media (max-width: 900px) {
@@ -999,7 +918,7 @@ image-slot:hover {
 .stack-summary-k {
   display: block;
   color: var(--fg-faint);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 3px;
@@ -1007,7 +926,7 @@ image-slot:hover {
 .stack-summary-v {
   display: block;
   color: var(--fg);
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1094,7 +1013,7 @@ image-slot:hover {
   border: 1px solid var(--line-2);
   background: color-mix(in oklab, var(--bg-3) 74%, transparent);
   padding: 4px 7px;
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.2;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -1146,12 +1065,12 @@ image-slot:hover {
   border-bottom: 1px dashed var(--line);
 }
 .stk-group-icon { color: var(--accent); font-size: 16px; line-height: 1; }
-.stk-group-dir  { font-family: var(--mono); font-size: 13px; color: var(--fg); }
-.stk-group-n    { margin-left: auto; font-size: 10.5px; color: var(--fg-faint); border: 1px solid var(--line); padding: 1px 5px; }
+.stk-group-dir  { font-family: var(--mono); font-size: 14px; color: var(--fg); }
+.stk-group-n    { margin-left: auto; font-size: 11px; color: var(--fg-faint); border: 1px solid var(--line); padding: 1px 5px; }
 .stk-group-items { display: flex; flex-wrap: wrap; gap: 6px; }
 .stk-item {
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--fg-dim);
   padding: 5px 9px;
   border: 1px solid var(--line-2);
@@ -1293,7 +1212,7 @@ image-slot:hover {
   padding: 9px 14px;
   border: 1px solid var(--line-2);
   font-family: var(--mono);
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--fg);
   background: transparent;
   transition: all 0.15s;
@@ -1402,8 +1321,8 @@ image-slot:hover {
     overflow-wrap: anywhere;
   }
   .case-body { padding: 16px; gap: 18px; }
-  .case-body .summary { font-size: 13.5px; }
-  .case-body .features li { font-size: 13px; }
+  .case-body .summary { font-size: 14px; }
+  .case-body .features li { font-size: 14px; }
 }
 
 /* Process mobile */
@@ -1452,14 +1371,14 @@ image-slot:hover {
     gap: 4px;
   }
   .gitlog .title {
-    font-size: 15.5px;
+    font-size: 16px;
     line-height: 1.3;
     overflow-wrap: anywhere;
   }
   .gitlog .org {
     margin: 0;
     color: var(--fg-dim);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.35;
     overflow-wrap: anywhere;
   }
@@ -1469,7 +1388,7 @@ image-slot:hover {
     margin-top: 6px;
     max-width: none;
     color: var(--fg-dim);
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.5;
     overflow-wrap: anywhere;
   }
@@ -1485,7 +1404,7 @@ image-slot:hover {
   #faq button {
     align-items: flex-start !important;
     gap: 12px !important;
-    font-size: 13.5px !important;
+    font-size: 14px !important;
     padding: 14px 0 !important;
   }
   #faq button > span:first-child {
@@ -1684,7 +1603,7 @@ image-slot:hover {
   border: none;
   color: var(--fg);
   font-family: var(--mono);
-  font-size: 14.5px;
+  font-size: 14px;
   line-height: 1.55;
   padding: 2px 0;
   resize: vertical;
@@ -1707,7 +1626,7 @@ image-slot:hover {
 }
 .ai-chips-label {
   color: var(--fg-faint);
-  font-size: 11.5px;
+  font-size: 12px;
   font-family: var(--mono);
   margin-right: 4px;
 }
@@ -1717,7 +1636,7 @@ image-slot:hover {
   color: var(--fg-dim);
   padding: 6px 11px;
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -1748,7 +1667,7 @@ image-slot:hover {
   color: #000;
   padding: 10px 20px;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -1775,7 +1694,7 @@ image-slot:hover {
   border: 1px solid var(--danger, #ff6b6b);
   background: color-mix(in oklab, var(--danger, #ff6b6b) 6%, transparent);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg);
 }
 
@@ -1827,23 +1746,23 @@ image-slot:hover {
 }
 .ai-card-k {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--fg-faint);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .ai-card-v {
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--fg);
   line-height: 1.4;
 }
 .ai-card.is-accent .ai-card-v {
   color: var(--accent);
-  font-size: 17px;
+  font-size: 16px;
 }
 .ai-card.is-big .ai-card-v {
-  font-size: 19px;
+  font-size: 20px;
 }
 .ai-card-chips {
   display: flex;
@@ -1852,7 +1771,7 @@ image-slot:hover {
 }
 .ai-stack-chip {
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--fg);
   border: 1px solid var(--line-2);
   padding: 3px 8px;
@@ -1874,4 +1793,249 @@ image-slot:hover {
 }
 @media (max-width: 480px) {
   .ai-grid { grid-template-columns: 1fr; }
+}
+
+/* ===========================================================
+   Case links (live / source)
+   =========================================================== */
+.case-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+.case-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid var(--line-2);
+  background: color-mix(in oklab, var(--bg-3) 74%, transparent);
+  color: var(--fg-dim);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+}
+.case-links a b {
+  color: var(--fg-faint);
+  font-weight: 400;
+  transition: color 0.18s;
+}
+.case-links a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.case-links a:hover b { color: var(--accent); }
+.case-links a.is-live { color: var(--fg); }
+.case-links a.is-live b { color: var(--accent); }
+
+/* ===========================================================
+   Lab — open-source pet projects
+   =========================================================== */
+.lab-note {
+  color: var(--fg-dim);
+  font-size: 14px;
+  max-width: 70ch;
+  margin: 0 0 22px;
+}
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.lab-card {
+  background: var(--bg-2);
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  animation: chipIn 0.35s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+  transition: background 0.2s;
+}
+.lab-card:hover { background: var(--bg-3); }
+.lab-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.lab-index {
+  color: var(--fg-faint);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.lab-lang {
+  margin-left: auto;
+  color: #000;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 2px 8px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.lab-name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+.lab-kind {
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  margin: 5px 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--line);
+}
+.lab-desc {
+  color: var(--fg-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+.lab-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: auto;
+}
+.lab-tags span {
+  color: var(--fg-dim);
+  border: 1px solid var(--line-2);
+  background: color-mix(in oklab, var(--bg-3) 74%, transparent);
+  padding: 4px 7px;
+  font-size: 12px;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+}
+.lab-tags span:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.lab-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.lab-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border: 1px solid var(--line-2);
+  color: var(--fg-dim);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
+}
+.lab-links a b {
+  color: var(--fg-faint);
+  font-weight: 400;
+  transition: color 0.18s;
+}
+.lab-links a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.lab-links a:hover b { color: var(--accent); }
+.lab-links a.is-live { color: var(--fg); }
+.lab-links a.is-live b { color: var(--accent); }
+
+@media (max-width: 1000px) {
+  .lab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .lab-grid { grid-template-columns: 1fr; }
+  .lab-card { padding: 14px 16px 16px; }
+  .lab-name { font-size: 18px; }
+  .case-links a, .lab-links a { font-size: 12px; padding: 5px 10px; }
+}
+
+
+/* ===========================================================
+   Entry sequence — boot veil, then hero
+   One easing family throughout, so the entrance reads as a single
+   continuous move instead of a series of cuts.
+   `backwards` fill (not `both`) is deliberate: the from-state applies
+   during the delay, but nothing is pinned after the animation ends,
+   which leaves the .gone transitions free to run.
+   =========================================================== */
+
+@keyframes boot-veil-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes boot-box-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes boot-line-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.boot {
+  animation: boot-veil-in 0.45s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  transition:
+    opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.boot-box {
+  animation: boot-box-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  transition:
+    opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* the box recedes while the veil fades out — a dissolve, not a blink */
+.boot.gone { pointer-events: none; }  /* stop the fading veil from eating clicks */
+.boot.gone .boot-box { opacity: 0; transform: translateY(-10px) scale(0.97); }
+.boot-line { animation: boot-line-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.boot-bar .fill { transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* Hero arrives as one staggered move while the veil clears. */
+.hero-content.is-in .hero-upper   { animation: hero-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.04s backwards; }
+.hero-content.is-in .status-pill  { animation: hero-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s backwards; }
+.hero-content.is-in .hero-name    { animation: hero-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.20s backwards; }
+.hero-content.is-in .hero-role    { animation: hero-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.30s backwards; }
+.hero-content.is-in .hero-tagline { animation: hero-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.38s backwards; }
+.hero-content.is-in .hero-actions { animation: hero-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.46s backwards; }
+.hero-content.is-in .marquee      { animation: hero-rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.56s backwards; }
+
+/* Respect the OS "reduce motion" setting: kill decorative motion outright.
+   The Tweaks panel can still be used to turn effects back on. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee-track { animation: none; transform: none; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .crt-overlay.flicker { animation: none; }
+  .hero-name.glitch:hover::before,
+  .hero-name.glitch:hover::after { animation: none; opacity: 0; }
+  .cursor { animation: none; opacity: 1; }
 }

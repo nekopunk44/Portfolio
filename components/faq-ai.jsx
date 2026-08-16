@@ -81,7 +81,7 @@ const FAQItem = ({ q, a, open, onToggle, idx }) => (
         alignItems: "center",
         gap: 18,
         fontFamily: "var(--mono)",
-        fontSize: 15.5,
+        fontSize: 16,
       }}
     >
       <span style={{ display: "flex", gap: 14, alignItems: "center" }}>
@@ -110,7 +110,7 @@ const FAQ = ({ t }) => {
   return (
     <section id="faq" className="section">
       <div className="section-head">
-        <div className="label">{(t.sectionLabels && t.sectionLabels.faq) || "06 / FAQ"}</div>
+        <h2 className="label">{(t.sectionLabels && t.sectionLabels.faq) || "07 / FAQ"}</h2>
         <div className="cmd">{t.faq.cmd}</div>
       </div>
       <Reveal>
@@ -198,7 +198,7 @@ const AIBriefSection = ({ lang }) => {
     setError(null);
     setResult(null);
     try {
-      const systemPrompt = `You are a project-intake assistant for a fullstack developer (React, Next.js, React Native, Three.js, Node.js, Python/FastAPI, Docker, Postgres, MongoDB). Analyze the client's brief and return STRICT JSON only (no markdown, no prose). Respond in ${lang === "ru" ? "Russian" : "English"}.
+      const systemPrompt = `You are a project-intake assistant for a fullstack developer (React, Next.js, React Native, Expo, Flutter, Three.js, Node.js/Express, ASP.NET Core/C#, Python/FastAPI, Socket.IO, Docker, Postgres, MongoDB, Redis). Analyze the client's brief and return STRICT JSON only (no markdown, no prose). Respond in ${lang === "ru" ? "Russian" : "English"}.
 
 Schema:
 {
@@ -230,7 +230,7 @@ Realistic ranges: landing $400–1500 / 1–2w, corporate $1200–4000 / 3–5w,
   return (
     <section id="ai-estimate" className="section ai-section">
       <div className="section-head">
-        <div className="label">{L.label}</div>
+        <h2 className="label">{L.label}</h2>
         <div className="cmd">{L.cmd}</div>
       </div>
 

@@ -15,7 +15,7 @@ const SphereNav = ({ activeSection }) => {
     [PHI, 0, 1], [-PHI, 0, 1], [PHI, 0, -1], [-PHI, 0, -1],
   ];
   const SECTION_VERTS = {
-    home: 0, about: 4, stack: 8, cases: 6,
+    home: 0, about: 4, stack: 8, cases: 6, lab: 10,
     process: 1, timeline: 7, faq: 5, contact: 9,
   };
 
@@ -167,9 +167,8 @@ const SphereNav = ({ activeSection }) => {
       halo.position.copy(VERTS[ai].clone().multiplyScalar(dotR));
 
       renderer.render(scene, camera);
-      st.raf = requestAnimationFrame(animate);
     };
-    animate();
+    const stopLoop = window.rafScene(mount, animate);
 
     const onResize = () => {
       camera.aspect = W() / H();
@@ -179,7 +178,7 @@ const SphereNav = ({ activeSection }) => {
     window.addEventListener('resize', onResize);
 
     return () => {
-      cancelAnimationFrame(st.raf);
+      stopLoop();
       window.removeEventListener('resize', onResize);
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);

@@ -19,13 +19,26 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "hero3d": true
 }/*EDITMODE-END*/;
 
-const SECTIONS = ["home", "about", "stack", "cases", "process", "timeline", "faq", "contact"];
-const SECTION_KEYS = { h: "home", a: "about", s: "stack", c: "cases", p: "process", t: "timeline", f: "faq", x: "contact" };
+/* Проверка работы > описание работы: кейсы идут сразу после знакомства, стек — после них. */
+const SECTIONS = ["home", "about", "cases", "lab", "stack", "process", "timeline", "faq", "contact"];
+const SECTION_KEYS = { h: "home", a: "about", c: "cases", l: "lab", s: "stack", p: "process", t: "timeline", f: "faq", x: "contact" };
+
+/* The boot sequence is a first-impression device, not a per-navigation toll. */
+const BOOT_SEEN_KEY = "portfolio.booted";
+const hasBooted = () => {
+  try { return window.sessionStorage.getItem(BOOT_SEEN_KEY) === "1"; } catch (e) { return false; }
+};
+const markBooted = () => {
+  try { window.sessionStorage.setItem(BOOT_SEEN_KEY, "1"); } catch (e) { /* ignore */ }
+};
 
 const App = () => {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
-  const [bootDone, setBootDone] = useState(false);
+  const [bootDone, setBootDone] = useState(hasBooted);
+  /* Decided once, at mount. If this flipped when bootDone changed, Boot would be
+     unmounted mid-dissolve and its exit transition would never play. */
+  const [bootEnabled] = useState(() => !hasBooted() && tweaks.motion !== "low");
   const [activeSection, setActiveSection] = useState("home");
   const [termOpen, setTermOpen] = useState(false);
   const [kbdHint, setKbdHint] = useState("");
@@ -161,7 +174,11 @@ const App = () => {
 
   return (
     <>
-      <Boot lines={t.bootLines} onDone={() => setBootDone(true)} enabled={!bootDone && tweaks.motion !== "low"} />
+      <Boot
+        lines={t.bootLines}
+        onDone={() => { markBooted(); setBootDone(true); }}
+        enabled={bootEnabled}
+      />
 
       <div className="topbar">
         <div className="dots">
@@ -191,7 +208,7 @@ const App = () => {
 
       {/* Mobile bottom nav */}
       <nav className="mobile-nav">
-        {["home","about","stack","cases","contact"].map(id => (
+        {["home","about","cases","stack","contact"].map(id => (
           <a key={id} href={`#${id}`} onClick={navigateTo(id)} className={activeSection === id ? "active" : ""}>
             <span className="dot" />
             <span>{id}</span>
@@ -202,11 +219,12 @@ const App = () => {
       <div className="page">
         <section id="home" className="hero">
           <HeroCanvas motionLevel={tweaks.motion} />
-          <HeroContent t={t} profile={profile} bootDone={bootDone} />
+          <HeroContent t={t} profile={profile} bootDone={bootDone} motion={tweaks.motion} />
         </section>
         <About t={t} profile={profile} />
-        <Stack t={t} />
         <Cases t={t} />
+        <Lab t={t} />
+        <Stack t={t} />
         <Process t={t} />
         <Timeline t={t} />
         <FAQ t={t} />
@@ -250,19 +268,26 @@ const App = () => {
 };
 
 /* Extract hero inner content to keep App concise */
-const HeroContent = ({ t, profile, bootDone }) => {
+const HeroContent = ({ t, profile, bootDone, motion = "high" }) => {
   const [typed, setTyped] = useState("");
   const target = profile.name;
+  const animated = motion !== "low";
+
   useEffect(() => {
     if (!bootDone) return;
     let i = 0;
-    const id = setInterval(() => {
-      i++;
-      setTyped(target.slice(0, i));
-      if (i >= target.length) clearInterval(id);
-    }, 75);
-    return () => clearInterval(id);
-  }, [bootDone, target]);
+    let interval = 0;
+    /* let the title finish rising into place before the caret starts running,
+       so the two moves read in sequence instead of colliding */
+    const start = setTimeout(() => {
+      interval = setInterval(() => {
+        i++;
+        setTyped(target.slice(0, i));
+        if (i >= target.length) clearInterval(interval);
+      }, 78);
+    }, animated ? 300 : 0);
+    return () => { clearTimeout(start); clearInterval(interval); };
+  }, [bootDone, target, animated]);
 
   const [uptime, setUptime] = useState(() => {
     const n = new Date();
@@ -277,7 +302,7 @@ const HeroContent = ({ t, profile, bootDone }) => {
   }, []);
 
   return (
-    <div className="hero-content">
+    <div className={`hero-content ${bootDone && animated ? "is-in" : ""}`}>
       <div className="hero-upper" style={{ position: "relative", top: 0, marginBottom: 60 }}>
         <div className="meta-block"><span className="k">LOCATION</span><span className="v">{profile.location}</span></div>
         <div className="meta-block"><span className="k">EXPERIENCE</span><span className="v">{profile.years} YEARS</span></div>
@@ -286,8 +311,11 @@ const HeroContent = ({ t, profile, bootDone }) => {
       </div>
 
       <div className="status-pill"><i className="blip" />{t.status}</div>
-      <h1 className="hero-name glitch" data-text={typed}>
-        {typed || "\u00A0"}<span className="cursor" />
+      {/* aria-label carries the full name from the first render; the children are
+          the typing animation and stay hidden from assistive tech. */}
+      <h1 className="hero-name glitch" data-text={typed} aria-label={target}>
+        <span aria-hidden="true">{typed || "\u00A0"}</span>
+        <span className="cursor" aria-hidden="true" />
       </h1>
       <div className="hero-role">{t.heroRole}</div>
       <p className="hero-tagline">{t.heroTagline}</p>

@@ -13,7 +13,7 @@ const HeroCanvas = ({ motionLevel = "high" }) => {
     const rainCtx = rainCanvas ? rainCanvas.getContext('2d') : null;
     const gridCtx = gridCanvas.getContext('2d');
 
-    let raf, w, h, dpr;
+    let w, h, dpr;
     let rainCols = [], rainDrops = [];
     const fontSize = 16;
     const chars = "01アカサタナ<>/\\{}#=*+-|";
@@ -117,13 +117,12 @@ const HeroCanvas = ({ motionLevel = "high" }) => {
       gridCtx.fillStyle = grad;
       gridCtx.fillRect(0, scanY - 30, w, 60);
 
-      raf = requestAnimationFrame(draw);
     };
 
-    draw();
+    const stopLoop = window.rafScene(gridCanvas, draw);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopLoop();
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('resize', resize);
     };

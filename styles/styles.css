@@ -7,8 +7,8 @@
   --bg-2: #101012;
   --bg-3: #17171a;
   --fg: #e8e8e6;
-  --fg-dim: #8a8a86;
-  --fg-faint: #4a4a47;
+  --fg-dim: #8a8a86;          /* 5.71:1 on --bg */
+  --fg-faint: #7a7a76;        /* 4.59:1 on --bg — WCAG AA for body text */
   --line: #242427;
   --line-2: #2e2e32;
   --accent: #7dff9e;          /* phosphor green — overridden by tweaks */
@@ -34,7 +34,7 @@ html, body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01", "cv11", "liga" 0;
@@ -100,7 +100,7 @@ button { font-family: inherit; font-size: inherit; }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--fg-dim);
 }
 .topbar .dots { display: flex; gap: 6px; }
@@ -132,7 +132,7 @@ button { font-family: inherit; font-size: inherit; }
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--fg-faint);
 }
 .sidenav a {
@@ -174,8 +174,8 @@ button { font-family: inherit; font-size: inherit; }
   border-bottom: 1px solid var(--line);
   padding-bottom: 12px;
 }
-.section-head .label { color: var(--fg-faint); font-size: 12px; letter-spacing: 0.08em; }
-.section-head .cmd { color: var(--accent); font-size: 12.5px; }
+.section-head .label { color: var(--fg-faint); font-size: 12px; letter-spacing: 0.08em; font-weight: 400; margin: 0; }
+.section-head .cmd { color: var(--accent); font-size: 12px; }
 .section-head .cmd::before { content: "$ "; color: var(--fg-faint); }
 
 /* ---------- HERO ---------- */
@@ -260,7 +260,7 @@ button { font-family: inherit; font-size: inherit; }
   background: transparent;
   color: var(--fg);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.18s;
   text-transform: lowercase;
@@ -282,7 +282,7 @@ button { font-family: inherit; font-size: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg);
   padding: 24px;
   transition: opacity 0.4s, visibility 0.4s;
@@ -298,7 +298,7 @@ button { font-family: inherit; font-size: inherit; }
 .boot-box .header {
   color: var(--accent);
   margin-bottom: 10px;
-  font-size: 11.5px;
+  font-size: 12px;
   letter-spacing: 0.08em;
   border-bottom: 1px dashed var(--line);
   padding-bottom: 8px;
@@ -370,7 +370,7 @@ button { font-family: inherit; font-size: inherit; }
   border: 1px solid var(--line);
   background: var(--bg-2);
   padding: 20px;
-  font-size: 12.5px;
+  font-size: 12px;
   min-width: 0;
   overflow: hidden;
 }
@@ -409,12 +409,12 @@ button { font-family: inherit; font-size: inherit; }
 .stack-cell:nth-child(3n) { border-right: none; }
 .stack-cell:nth-last-child(-n+3) { border-bottom: none; }
 .stack-cell:hover { background: color-mix(in oklch, var(--accent) 4%, var(--bg-2)); }
-.stack-cell .dir { color: var(--accent); font-size: 13px; margin-bottom: 12px; }
+.stack-cell .dir { color: var(--accent); font-size: 14px; margin-bottom: 12px; }
 .stack-cell .dir::before { content: "└─ "; color: var(--fg-faint); }
 .stack-cell ul { list-style: none; margin: 0; padding: 0; }
 .stack-cell li {
   color: var(--fg);
-  font-size: 13.5px;
+  font-size: 14px;
   padding: 3px 0 3px 18px;
   position: relative;
 }
@@ -446,6 +446,7 @@ button { font-family: inherit; font-size: inherit; }
 }
 .case-card:hover { border-color: var(--accent); }
 .case-head {
+  position: relative;
   display: grid;
   grid-template-columns: 80px 1fr auto;
   gap: 24px;
@@ -455,10 +456,27 @@ button { font-family: inherit; font-size: inherit; }
   cursor: pointer;
 }
 .case-head .code { color: var(--fg-faint); font-size: 12px; letter-spacing: 0.1em; }
-.case-head .title { font-size: clamp(22px, 2.8vw, 36px); font-weight: 400; letter-spacing: -0.02em; color: var(--fg); }
+.case-head .title { font-size: clamp(22px, 2.8vw, 36px); font-weight: 400; letter-spacing: -0.02em; color: var(--fg); margin: 0; }
+/* the heading holds a real button; ::after stretches the hit area over the whole row */
+.case-toggle {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.case-toggle::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.case-toggle:focus { outline: none; }
+.case-toggle:focus-visible::after { outline: 2px solid var(--accent); outline-offset: -4px; }
+.case-kind { color: var(--fg-dim); font-size: 14px; margin-top: 4px; }
 .case-head .meta { text-align: right; font-size: 12px; color: var(--fg-dim); }
 .case-head .meta span { display: block; }
-.case-head .meta .year { color: var(--accent); font-size: 13px; }
+.case-head .meta .case-sign { color: var(--accent); margin-top: 6px; }
 
 .case-body {
   display: grid;
@@ -468,7 +486,7 @@ button { font-family: inherit; font-size: inherit; }
   min-width: 0;
 }
 .case-body > * { min-width: 0; }
-.case-body .summary { color: var(--fg-dim); font-size: 15px; margin: 0 0 18px; }
+.case-body .summary { color: var(--fg-dim); font-size: 16px; margin: 0 0 18px; }
 .case-body h4 { margin: 0 0 10px; font-size: 12px; color: var(--fg-faint); letter-spacing: 0.1em; font-weight: 400; }
 .case-body .features { list-style: none; margin: 0 0 20px; padding: 0; }
 .case-body .features li {
@@ -481,7 +499,7 @@ button { font-family: inherit; font-size: inherit; }
 
 .case-stack { display: flex; flex-wrap: wrap; gap: 6px; }
 .case-stack span {
-  font-size: 11.5px;
+  font-size: 12px;
   padding: 3px 8px;
   border: 1px solid var(--line-2);
   color: var(--fg-dim);
@@ -504,7 +522,7 @@ button { font-family: inherit; font-size: inherit; }
   text-shadow: 0 0 18px var(--accent-glow);
 }
 .metric .v {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--fg-dim);
   margin-top: 4px;
 }
@@ -522,7 +540,7 @@ button { font-family: inherit; font-size: inherit; }
   border: 1px solid var(--line);
   background: var(--bg-2);
   padding: 22px 24px;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 .gitlog .row {
   display: grid;
@@ -542,9 +560,9 @@ button { font-family: inherit; font-size: inherit; }
   flex-wrap: wrap;
   gap: 4px 10px;
 }
-.gitlog .title { color: var(--fg); font-size: 15px; }
-.gitlog .org { color: var(--fg-dim); font-size: 12.5px; }
-.gitlog .note { color: var(--fg-dim); font-size: 12.5px; text-align: right; }
+.gitlog .title { color: var(--fg); font-size: 16px; }
+.gitlog .org { color: var(--fg-dim); font-size: 12px; }
+.gitlog .note { color: var(--fg-dim); font-size: 12px; text-align: right; }
 .gitlog .hash { color: var(--fg-faint); font-size: 11px; letter-spacing: 0.05em; }
 
 @media (max-width: 980px) {
@@ -593,14 +611,14 @@ button { font-family: inherit; font-size: inherit; }
   .gitlog .title,
   .gitlog .org { min-width: 0; }
   .gitlog .title {
-    font-size: 15.5px;
+    font-size: 16px;
     line-height: 1.3;
     overflow-wrap: anywhere;
   }
   .gitlog .org {
     margin: 0;
     color: var(--fg-dim);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.35;
     overflow-wrap: anywhere;
   }
@@ -610,7 +628,7 @@ button { font-family: inherit; font-size: inherit; }
     margin-top: 6px;
     max-width: none;
     color: var(--fg-dim);
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.5;
     overflow-wrap: anywhere;
   }
@@ -644,7 +662,7 @@ button { font-family: inherit; font-size: inherit; }
   border: 1px solid var(--line);
   background: #050506;
   font-family: var(--mono);
-  font-size: 13.5px;
+  font-size: 14px;
 }
 .term-head {
   background: var(--bg-2);
@@ -653,7 +671,7 @@ button { font-family: inherit; font-size: inherit; }
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--fg-dim);
 }
 .term-head .dots { display: flex; gap: 5px; }
@@ -661,8 +679,8 @@ button { font-family: inherit; font-size: inherit; }
 .term-body { padding: 18px 20px; min-height: 340px; }
 .term-body .line { margin: 4px 0; }
 .term-body .prompt { color: var(--accent); }
-.term-body .dim { color: var(--fg-dim); font-size: 12.5px; margin: 6px 0 10px; }
-.term-body label { display: block; color: var(--fg-faint); font-size: 11.5px; letter-spacing: 0.08em; margin: 14px 0 4px; }
+.term-body .dim { color: var(--fg-dim); font-size: 12px; margin: 6px 0 10px; }
+.term-body label { display: block; color: var(--fg-faint); font-size: 12px; letter-spacing: 0.08em; margin: 14px 0 4px; }
 .term-body input, .term-body textarea {
   width: 100%;
   background: transparent;
@@ -703,7 +721,7 @@ button { font-family: inherit; font-size: inherit; }
   padding: 8px 16px;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
 }
 .term-body .send-btn:hover { background: var(--accent); color: #000; }
 .term-body .send-btn:disabled {
@@ -768,4 +786,21 @@ button { font-family: inherit; font-size: inherit; }
   border-bottom-width: 2px;
   color: var(--fg-dim);
 }
-.mono-small { font-size: 11.5px; color: var(--fg-faint); letter-spacing: 0.05em; }
+.mono-small { font-size: 12px; color: var(--fg-faint); letter-spacing: 0.05em; }
+
+/* ===========================================================
+   Accessibility primitives
+   =========================================================== */
+
+/* One focus ring for every interactive element. Keyboard only — :focus-visible
+   keeps it off for mouse clicks. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
