@@ -86,7 +86,7 @@ li::before{content:"×";position:absolute;left:0;color:var(--acc);font-weight:70
 li b{color:var(--acc);font-weight:700}
 .muted{color:var(--dim)}
 
-.prj{margin-bottom:1.4mm}
+.prj{margin-bottom:1.1mm}
 .prj-t{font-size:9.6pt;font-weight:800;letter-spacing:.2px}
 .prj-t span{font-weight:400;font-size:7.6pt;letter-spacing:.9px;color:var(--ink)}
 .prj-l{font-size:6.4pt;letter-spacing:.7px;color:var(--dim);margin:.4mm 0 1mm}
@@ -97,6 +97,30 @@ li b{color:var(--acc);font-weight:700}
 .foot .s{color:var(--acc);font-weight:700;margin:0 1mm}
 .bars{display:flex;gap:.7mm;align-items:flex-end;height:4mm}
 .bars i{display:block;width:.8mm;background:var(--ink)}
+
+
+/* QR на портфолио. Модули тёмные на СВЕТЛОЙ подложке жёстко заданными цветами,
+   а не токенами темы: код должен одинаково читаться и в тёмной версии, и в
+   напечатанной, а инвертированный QR берут не все сканеры. Проверен декодером
+   opencv — раскодировался в адрес портфолио. */
+.topright{display:flex;flex-direction:column;align-items:flex-end;gap:2.2mm}
+.qr{display:block;background:#e8e8e6;padding:1.1mm;border-radius:1mm;line-height:0}
+.qr svg{display:block;width:15mm;height:15mm;shape-rendering:crispEdges}
+
+
+/* ── светлая версия для печати ──────────────────────────
+   Тёмный фон под обрез хорош на экране, но на бумаге это полный картридж,
+   а часть рекрутёров резюме печатает. Тема включается классом на <html>,
+   содержимое НЕ дублируется — печатается тот же файл.
+   Фосфорный #7dff9e на белом нечитаем (контраст около 1.3:1), поэтому для
+   печати взят тот же тон, но тёмный: #0f7a3d даёт примерно 5:1 на белом.
+   Плашки секций и активные плитки стека при этом переворачиваются на белый
+   текст — иначе почти чёрная надпись легла бы на тёмно-зелёный фон. */
+html.light{--bg:#ffffff;--ink:#14141a;--dim:#5c5c62;--line:#d5d5da;--acc:#0f7a3d}
+html.light .sec-h{color:#ffffff}
+html.light .t.hi{color:#ffffff}
+html.light .qr{background:#ffffff}
+html.light .p2num{color:var(--acc)}
 
 @page{size:A4;margin:0}
 @media print{body{background:#fff}.page{margin:0;box-shadow:none}}
@@ -112,7 +136,10 @@ li b{color:var(--acc);font-weight:700}
       <div class="name">ВЛАДИСЛАВ<br><span class="b">БРЕДИХИН</span></div>
       <div class="role">FULL-STACK &amp; MOBILE DEVELOPER</div>
     </div>
-    <div class="open">ОТКРЫТ<br>К УДАЛЁНКЕ</div>
+    <div class="topright">
+      <div class="open">ОТКРЫТ<br>К УДАЛЁНКЕ<br>GMT+2</div>
+      <a class="qr" href="https://nekopunk.vladbredihin4.workers.dev" aria-label="Портфолио"><svg xmlns="http://www.w3.org/2000/svg" class="segno"><path class="qrline" stroke="#0b0b0d" d="M0 0.5h7m3 0h2m1 0h1m3 0h1m4 0h7m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h1m2 0h3m3 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h2m1 0h2m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m3 0h1m2 0h2m2 0h1m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m5 0h2m2 0h1m5 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h1m5 0h2m4 0h1m-21 1h1m5 0h1m1 0h1m2 0h3m3 0h1m3 0h2m2 0h3m-26 1h4m2 0h2m1 0h5m2 0h2m1 0h1m1 0h2m1 0h2m-27 1h2m1 0h1m1 0h3m3 0h4m4 0h2m1 0h1m-22 1h1m2 0h1m6 0h1m2 0h1m2 0h1m4 0h1m1 0h1m-25 1h1m1 0h4m1 0h4m3 0h1m3 0h2m1 0h2m4 0h1m-28 1h1m2 0h2m3 0h2m4 0h10m2 0h2m-29 1h2m4 0h5m3 0h3m1 0h1m4 0h1m1 0h2m-27 1h4m3 0h1m3 0h2m1 0h2m5 0h2m3 0h1m1 0h1m-29 1h3m3 0h3m1 0h1m2 0h2m2 0h1m1 0h1m5 0h2m-27 1h1m3 0h1m2 0h1m3 0h2m2 0h6m1 0h3m1 0h3m-29 1h3m1 0h1m1 0h4m1 0h1m1 0h1m1 0h1m1 0h4m3 0h2m2 0h1m-29 1h1m2 0h3m3 0h4m1 0h3m1 0h3m1 0h3m-25 1h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h6m2 0h5m1 0h3m-21 1h2m5 0h1m1 0h4m3 0h2m-26 1h7m4 0h5m2 0h3m1 0h1m1 0h3m-27 1h1m5 0h1m2 0h2m4 0h2m2 0h2m3 0h1m3 0h1m-29 1h1m1 0h3m1 0h1m3 0h2m1 0h2m1 0h1m2 0h7m1 0h1m-28 1h1m1 0h3m1 0h1m3 0h2m3 0h1m1 0h2m1 0h2m3 0h2m1 0h1m-29 1h1m1 0h3m1 0h1m6 0h3m1 0h1m1 0h9m-28 1h1m5 0h1m4 0h1m6 0h1m6 0h2m1 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m2 0h4m3 0h2m2 0h1"/></svg></a>
+    </div>
   </div>
 
   <div class="contacts">
@@ -201,7 +228,7 @@ li b{color:var(--acc);font-weight:700}
       <i style="height:4mm"></i><i style="height:3.4mm"></i><i style="height:4mm"></i><i style="height:2mm"></i>
       <i style="height:4mm"></i><i style="height:3mm"></i><i style="height:4mm"></i>
     </div>
-    <div>РУССКИЙ — РОДНОЙ <span class="s">//</span> АНГЛИЙСКИЙ — ДОКУМЕНТАЦИЯ И ПЕРЕПИСКА С ЗАКАЗЧИКАМИ <span class="s">//</span> <a href="https://www.upwork.com/freelancers/~01FE86EE9387721EC2">UPWORK.COM/FREELANCERS/~01FE86EE9387721EC2</a></div>
+    <div>РУССКИЙ — РОДНОЙ <span class="s">//</span> АНГЛИЙСКИЙ — B2, ДОКУМЕНТАЦИЯ И ПЕРЕПИСКА С ЗАКАЗЧИКАМИ <span class="s">//</span> <a href="https://www.upwork.com/freelancers/~01FE86EE9387721EC2">UPWORK.COM/FREELANCERS/~01FE86EE9387721EC2</a></div>
   </div>
 
 </div>
@@ -219,7 +246,7 @@ li b{color:var(--acc);font-weight:700}
 
     <div class="prj">
       <div class="prj-t">AURA SCANNER <span>— МОБИЛЬНЫЙ СКАНЕР ДОКУМЕНТОВ НА FLUTTER</span></div>
-      <div class="prj-l"><a href="https://github.com/nekopunk44/Aura-scaner">GITHUB.COM/NEKOPUNK44/AURA-SCANER</a> · 230 КОММИТОВ · 83 000 СТРОК DART · 290 ТЕСТОВ · CI</div>
+      <div class="prj-l">МАЙ — АВГ 2026 · <a href="https://github.com/nekopunk44/Aura-scaner">GITHUB.COM/NEKOPUNK44/AURA-SCANER</a> · 238 КОММИТОВ · 290 ТЕСТОВ · CI</div>
       <ul>
         <li>Живая детекция границ документа в потоке кадров камеры на <b>OpenCV</b>: Canny, морфологическое закрытие, поиск контуров; обработка вынесена в изоляты, чтобы превью не подтормаживало.</li>
         <li>Заменил платный <b>Scanbot SDK</b> собственной детекцией страницы паспорта: поиск сгиба разворота, скоринг MRZ-полосы, фильтр сквозных линий сцены, автоснимок по покою кадра.</li>
@@ -231,7 +258,7 @@ li b{color:var(--acc);font-weight:700}
 
     <div class="prj">
       <div class="prj-t">AVTOTIME <span>— СОЦИАЛЬНАЯ ПЛАТФОРМА ДЛЯ АВТОМОБИЛИСТОВ</span></div>
-      <div class="prj-l"><a href="https://avtotime.org">AVTOTIME.ORG</a> · <a href="https://github.com/nekopunk44/Avtotime">GITHUB.COM/NEKOPUNK44/AVTOTIME</a> · МОНОРЕПО ИЗ 4 КОДОВЫХ БАЗ · 82 000 СТРОК</div>
+      <div class="prj-l">МАЙ — АВГ 2026 · <a href="https://avtotime.org">AVTOTIME.ORG</a> · <a href="https://github.com/nekopunk44/Avtotime">GITHUB.COM/NEKOPUNK44/AVTOTIME</a> · МОНОРЕПО ИЗ 4 КОДОВЫХ БАЗ</div>
       <ul>
         <li>Backend Node.js 20 / Express 5: <b>156 эндпоинтов</b>, 25 моделей MongoDB с индексами, Socket.IO для чатов и уведомлений, Redis-кэш, cluster с graceful shutdown.</li>
         <li>Три клиента на одном API: веб-соцсеть (React 19, Redux Toolkit), отдельный веб-маркет на TypeScript и <b>мобильное приложение на Expo — 56 экранов</b>.</li>
@@ -242,7 +269,7 @@ li b{color:var(--acc);font-weight:700}
 
     <div class="prj">
       <div class="prj-t">LOYALTY_APP <span>— СИСТЕМА УПРАВЛЕНИЯ ПРЕМИАЛЬНОЙ ЛОЯЛЬНОСТЬЮ</span></div>
-      <div class="prj-l">ДИПЛОМНЫЙ ПРОЕКТ (ВКР) · ОТЕЛЬ VILLA JACONDA · <a href="https://villajaconda.com">VILLAJACONDA.COM</a> · <a href="https://github.com/nekopunk44/Loyalty_app">GITHUB.COM/NEKOPUNK44/LOYALTY_APP</a></div>
+      <div class="prj-l">ДЕК 2025 — ИЮНЬ 2026 · ДИПЛОМНЫЙ ПРОЕКТ (ВКР) · ОТЕЛЬ VILLA JACONDA · <a href="https://villajaconda.com">VILLAJACONDA.COM</a> · <a href="https://github.com/nekopunk44/Loyalty_app">GITHUB.COM/NEKOPUNK44/LOYALTY_APP</a></div>
       <ul>
         <li>Мобильное приложение (React Native / Expo) + backend (Node.js / Express, PostgreSQL, Redis) + ML-сервис (Python / FastAPI, scikit-learn).</li>
         <li>RFM-сегментация клиентов через k-means — силуэт <b>0.54</b>; прогноз оттока на Gradient Boosting — ROC-AUC <b>0.83</b>; персональные рекомендации по кластерам.</li>
@@ -253,7 +280,7 @@ li b{color:var(--acc);font-weight:700}
 
     <div class="prj">
       <div class="prj-t">AI-QUANT INSIGHTS <span>— ИНСТРУМЕНТ ПРОВЕРКИ РЫНОЧНЫХ ГИПОТЕЗ</span></div>
-      <div class="prj-l"><a href="https://github.com/nekopunk44/Quant">GITHUB.COM/NEKOPUNK44/QUANT</a> · МОНОРЕПО TS + PYTHON · 30 700 СТРОК</div>
+      <div class="prj-l">ИЮЛЬ — АВГ 2026 · <a href="https://github.com/nekopunk44/Quant">GITHUB.COM/NEKOPUNK44/QUANT</a> · МОНОРЕПО TS + PYTHON</div>
       <ul>
         <li>Статистика против переобучения написана <b>с нуля на TypeScript</b>, без внешних библиотек: Deflated Sharpe, Probabilistic Sharpe с поправкой на асимметрию и эксцесс, PBO, Monte-Carlo. У ядра бэктеста ноль рантайм-зависимостей.</li>
         <li>Walk-forward: подбор параметров на train-окне, оценка на нетронутом test-окне, сшивка out-of-sample кривой между фолдами.</li>
@@ -264,7 +291,7 @@ li b{color:var(--acc);font-weight:700}
 
     <div class="prj">
       <div class="prj-t">ENARD <span>— ГОЛОСОВОЙ АССИСТЕНТ С ЛОКАЛЬНОЙ НЕЙРОСЕТЬЮ</span></div>
-      <div class="prj-l"><a href="https://github.com/nekopunk44/Enard">GITHUB.COM/NEKOPUNK44/ENARD</a> · NODE + ELECTRON + EXPO + PWA</div>
+      <div class="prj-l">ИЮЛЬ — АВГ 2026 · <a href="https://github.com/nekopunk44/Enard">GITHUB.COM/NEKOPUNK44/ENARD</a> · NODE + ELECTRON + EXPO + PWA</div>
       <ul>
         <li>Работает офлайн: модель через <b>Ollama</b>, распознавание речи локальным <b>whisper.cpp</b>, синтез Piper TTS; облако подключается опционально одним ключом.</li>
         <li>Хаб-модель: компьютер держит модель и хранилище, телефон и браузер — клиенты одного REST + WebSocket протокола; команду можно адресовать соседнему устройству.</li>
@@ -274,7 +301,7 @@ li b{color:var(--acc);font-weight:700}
 
     <div class="prj">
       <div class="prj-t">MYTHORY <span>— ПЛАТФОРМА ВЕБ-НОВЕЛЛ, В РАЗРАБОТКЕ</span></div>
-      <div class="prj-l"><a href="https://github.com/nekopunk44/Mythory">GITHUB.COM/NEKOPUNK44/MYTHORY</a> · REACT 19 + VITE + SASS · ДИЗАЙН В FIGMA</div>
+      <div class="prj-l">С ИЮНЯ 2026 · <a href="https://github.com/nekopunk44/Mythory">GITHUB.COM/NEKOPUNK44/MYTHORY</a> · REACT 19 + VITE + SASS · ДИЗАЙН В FIGMA</div>
       <ul>
         <li>Читатель и автор в одном продукте: чтение по главам, закладки, свои истории и редактор. Дизайн — <b>35 экранов на трёх ширинах</b>; витрина собрана, дальше читалка, редактор глав и личный кабинет.</li>
       </ul>
@@ -282,7 +309,7 @@ li b{color:var(--acc);font-weight:700}
 
     <div class="prj">
       <div class="prj-t">ZENPULSE <span>— ПРИЛОЖЕНИЕ МЕДИТАЦИЙ НА EXPO / REACT NATIVE</span></div>
-      <div class="prj-l">ПРОТОТИП: БИБЛИОТЕКА СЕССИЙ, PAYWALL И ПОДПИСКИ, ТАЙМЕР С ДЫХАТЕЛЬНЫМИ ПАТТЕРНАМИ, AI-ПОДБОРКА ДНЯ</div>
+      <div class="prj-l">МАРТ 2026 · ПРОТОТИП: БИБЛИОТЕКА СЕССИЙ, PAYWALL И ПОДПИСКИ, ТАЙМЕР С ДЫХАТЕЛЬНЫМИ ПАТТЕРНАМИ, AI-ПОДБОРКА ДНЯ</div>
     </div>
   </div>
 
