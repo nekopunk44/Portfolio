@@ -292,5 +292,15 @@ li b{color:var(--acc);font-weight:700}
   </div>
 
 </div>
+<script>window.addEventListener('load',function(){
+ var mm=function(px){return (px/96*25.4).toFixed(1)};
+ var out=[];
+ document.querySelectorAll('.page').forEach(function(p,i){
+   var pt=p.getBoundingClientRect().top;
+   var f=p.querySelector('.foot');
+   out.push('Р»'+(i+1)+'='+mm(f.getBoundingClientRect().bottom-pt));
+ });
+ document.title='M|'+out.join(' ');
+});</script>
 </body>
 </html>
