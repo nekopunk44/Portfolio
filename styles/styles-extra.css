@@ -47,7 +47,7 @@
   border-top: 1px dashed var(--line);
   border-bottom: 1px dashed var(--line);
   padding: 10px 0;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-dim);
 }
 .marquee-track {
@@ -92,7 +92,6 @@
     border-bottom: none;
   }
   .metric .k {
-    font-size: 30px;
     letter-spacing: 0;
     white-space: nowrap;
   }
@@ -104,10 +103,16 @@
   }
 }
 
-/* ===== Animated counter ===== */
+/* ===== Animated counter =====
+   The counter runs 0 → target over 1.1s. With min-width: 1ch the box grew a
+   digit at a time, so under text-align:center the number visibly slid left for
+   the whole second. --metric-slots is set inline from the target's length, so
+   the box is the final width from the first frame.
+   (font-variant-numeric would do nothing here: JetBrains Mono is monospaced,
+   so its digits are already tabular — measured identical to the pixel.) */
 .metric .k {
   display: inline-block;
-  min-width: 1ch;
+  min-width: calc(var(--metric-slots, 2) * 1ch);
 }
 
 /* ===== Terminal overlay (easter egg) ===== */
@@ -141,7 +146,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-dim);
 }
 .term-overlay .head .dots { display: flex; gap: 5px; }
@@ -149,11 +154,11 @@
 .term-overlay .head .dots i:first-child { background: #ff5f57; }
 .term-overlay .head .dots i:nth-child(2) { background: #febc2e; }
 .term-overlay .head .dots i:nth-child(3) { background: var(--accent); }
-.term-overlay .head .close { margin-left: auto; color: var(--fg-faint); cursor: pointer; font-size: 11px; }
+.term-overlay .head .close { margin-left: auto; color: var(--fg-faint); cursor: pointer; font-size: var(--fs-xs); }
 .term-overlay .head .close:hover { color: var(--accent); }
 .term-overlay .body {
   padding: 16px 18px;
-  font-size: 14px;
+  font-size: var(--fs-md);
   color: var(--fg);
   overflow-y: auto;
   flex: 1;
@@ -178,7 +183,7 @@
   outline: none;
   color: var(--fg);
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--fs-md);
   padding: 4px 0;
 }
 .term-overlay .input-row input::placeholder { color: var(--fg-faint); }
@@ -192,7 +197,7 @@
   padding: 8px 12px;
   background: var(--bg-2);
   border: 1px solid var(--line);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--fg-dim);
   font-family: var(--mono);
   pointer-events: none;
@@ -211,7 +216,7 @@
   border: 1px solid var(--line);
 }
 .step {
-  padding: 26px 22px;
+  padding: clamp(18px, 14.87px + 0.87vw, 26px) clamp(16px, 13.65px + 0.65vw, 22px);
   border-right: 1px solid var(--line);
   position: relative;
   background: var(--bg-2);
@@ -220,29 +225,44 @@
 .step:last-child { border-right: none; }
 .step:hover { background: color-mix(in oklch, var(--accent) 4%, var(--bg-2)); }
 .step .num {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--fg-faint);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--track-caps);
   margin-bottom: 10px;
 }
-.step .arrow { position: absolute; right: -1px; top: 50%; transform: translate(50%,-50%); color: var(--accent); font-size: 14px; background: var(--bg); padding: 0 4px; z-index: 1; }
+.step .arrow { position: absolute; right: -1px; top: 50%; transform: translate(50%,-50%); color: var(--accent); font-size: var(--fs-md); background: var(--bg); padding: 0 4px; z-index: 1; }
 .step:last-child .arrow { display: none; }
 .step h3 {
-  font-size: 20px;
+  font-size: var(--fs-xl);
+  line-height: var(--lh-snug);
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--track-tight);
   margin: 0 0 10px;
+  text-wrap: var(--wrap-head);
 }
-.step p { color: var(--fg-dim); font-size: 14px; margin: 0 0 10px; }
-.step .tools { font-size: 11px; color: var(--fg-faint); }
+.step p {
+  color: var(--fg-dim);
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure-narrow);
+  margin: 0 0 10px;
+  text-wrap: var(--wrap-prose);
+}
+/* 11px → 12px: this line carries lowercase Cyrillic ("созвон · текст · figma"),
+   and at 11px the JetBrains Mono stem lands on 0.99 device px on a 1x screen —
+   below the raster threshold, where ш/щ and ъ/ь stop resolving. */
+.step .tools { font-size: var(--fs-sm); color: var(--fg-faint); }
 .step .tools b { color: var(--accent); font-weight: 400; }
-@media (max-width: 900px) {
+/* Four columns used to start at 901px, where each step's text collapsed to
+   19 characters — a 2.3x drop in measure for one extra pixel of window.
+   Four abreast only once the container is at full width. */
+@media (max-width: 1279px) {
   .process { grid-template-columns: 1fr 1fr; }
   .step:nth-child(2) { border-right: none; }
   .step:nth-child(1), .step:nth-child(2) { border-bottom: 1px solid var(--line); }
   .step .arrow { display: none; }
 }
-@media (max-width: 600px) {
+@media (max-width: 620px) {
   .process { grid-template-columns: 1fr; }
   .step { border-right: none !important; border-bottom: 1px solid var(--line); }
   .step:last-child { border-bottom: none; }
@@ -301,7 +321,7 @@ image-slot:hover {
   padding: 9px 14px;
   border-bottom: 1px solid var(--line);
   color: var(--fg-dim);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   min-width: 0;
 }
 .stack-dot {
@@ -336,7 +356,7 @@ image-slot:hover {
 .stack-summary-k {
   display: block;
   color: var(--fg-faint);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin-bottom: 3px;
@@ -344,7 +364,7 @@ image-slot:hover {
 .stack-summary-v {
   display: block;
   color: var(--fg);
-  font-size: 14px;
+  font-size: var(--fs-md);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -372,8 +392,8 @@ image-slot:hover {
 }
 .stack-index {
   color: var(--fg-faint);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
 }
 .stack-icon {
   margin-left: auto;
@@ -385,14 +405,14 @@ image-slot:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 700;
 }
 .stack-count {
   color: var(--fg-faint);
   border: 1px solid var(--line-2);
   padding: 2px 6px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 .stack-card-title {
   display: flex;
@@ -405,20 +425,22 @@ image-slot:hover {
 }
 .stack-card-title span {
   color: var(--fg);
-  font-size: 16px;
+  font-size: var(--fs-base);
   overflow-wrap: anywhere;
 }
 .stack-card-title b {
   color: var(--accent);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 400;
   white-space: nowrap;
 }
+/* 11px â 12px: lowercase Cyrillic, same raster floor as .step .tools */
 .stack-card-hint {
   color: var(--fg-faint);
-  font-size: 11px;
-  margin: 7px 0 11px;
-  min-height: 15px;
+  font-size: var(--fs-sm);
+  max-width: var(--measure-narrow);
+  margin: 8px 0 12px;
+  min-height: 16px;
 }
 .stack-items {
   display: flex;
@@ -431,8 +453,8 @@ image-slot:hover {
   border: 1px solid var(--line-2);
   background: color-mix(in oklab, var(--bg-3) 74%, transparent);
   padding: 4px 7px;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-chip);
   max-width: 100%;
   overflow-wrap: anywhere;
   animation: chipIn 0.28s cubic-bezier(0.2,0.9,0.25,1) both;
@@ -450,7 +472,7 @@ image-slot:hover {
   padding: 9px 14px;
   border-top: 1px solid var(--line);
   color: var(--fg-dim);
-  font-size: 11px;
+  font-size: var(--fs-xs);
 }
 .stack-flow i {
   width: 34px;
@@ -482,13 +504,13 @@ image-slot:hover {
   padding-bottom: 10px;
   border-bottom: 1px dashed var(--line);
 }
-.stk-group-icon { color: var(--accent); font-size: 16px; line-height: 1; }
-.stk-group-dir  { font-family: var(--mono); font-size: 14px; color: var(--fg); }
-.stk-group-n    { margin-left: auto; font-size: 11px; color: var(--fg-faint); border: 1px solid var(--line); padding: 1px 5px; }
+.stk-group-icon { color: var(--accent); font-size: var(--fs-base); line-height: var(--lh-flush); }
+.stk-group-dir  { font-family: var(--mono); font-size: var(--fs-md); color: var(--fg); }
+.stk-group-n    { margin-left: auto; font-size: var(--fs-xs); color: var(--fg-faint); border: 1px solid var(--line); padding: 1px 5px; }
 .stk-group-items { display: flex; flex-wrap: wrap; gap: 6px; }
 .stk-item {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-dim);
   padding: 5px 9px;
   border: 1px solid var(--line-2);
@@ -514,7 +536,6 @@ image-slot:hover {
 @media (max-width: 640px) {
   .stack-console-head {
     padding: 10px 12px;
-    font-size: 11px;
   }
   .stack-head-path { display: none; }
   .stack-map { grid-template-columns: 1fr; }
@@ -527,13 +548,11 @@ image-slot:hover {
     flex-direction: column;
     gap: 3px;
   }
-  .stack-card-title span { font-size: 16px; }
   .stack-card-hint {
     min-height: 0;
     margin-bottom: 12px;
   }
   .stack-token {
-    font-size: 11px;
     padding: 4px 6px;
   }
   .stack-flow {
@@ -587,10 +606,10 @@ image-slot:hover {
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent-glow);
 }
-.stk-tab-icon { font-size: 18px; line-height: 1; }
-.stk-tab-name { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.stk-tab-icon { font-size: var(--fs-lg); line-height: var(--lh-flush); }
+.stk-tab-name { font-size: var(--fs-xs); letter-spacing: var(--track-mid); text-transform: uppercase; }
 .stk-tab-count {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--fg-faint);
   border: 1px solid var(--line);
   padding: 1px 5px;
@@ -614,9 +633,9 @@ image-slot:hover {
   border-bottom: 1px dashed var(--line);
   font-family: var(--mono);
 }
-.stk-panel-icon { font-size: 22px; color: var(--accent); }
-.stk-panel-name { font-size: 18px; color: var(--fg); letter-spacing: -0.01em; }
-.stk-panel-count { margin-left: auto; font-size: 12px; color: var(--fg-faint); }
+.stk-panel-icon { font-size: var(--fs-xl); line-height: var(--lh-flush); color: var(--accent); }
+.stk-panel-name { font-size: var(--fs-lg); line-height: var(--lh-snug); color: var(--fg); letter-spacing: -0.01em; }
+.stk-panel-count { margin-left: auto; font-size: var(--fs-sm); color: var(--fg-faint); }
 
 .stk-chips {
   display: flex;
@@ -630,7 +649,7 @@ image-slot:hover {
   padding: 9px 14px;
   border: 1px solid var(--line-2);
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--fs-md);
   color: var(--fg);
   background: transparent;
   transition: all 0.15s;
@@ -641,7 +660,7 @@ image-slot:hover {
   color: var(--accent);
   background: var(--accent-soft);
 }
-.stk-chip-bullet { color: var(--accent); font-size: 11px; }
+.stk-chip-bullet { color: var(--accent); font-size: var(--fs-xs); }
 @keyframes chipIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -652,14 +671,11 @@ image-slot:hover {
 /* Topbar mobile */
 @media (max-width: 640px) {
   .topbar { padding: 0 12px; gap: 8px; }
-  .topbar .path { font-size: 11px; }
   .topbar .meta .mono-small { display: none; }
-  .topbar .meta span:first-child { font-size: 11px; }
 }
 
 /* Hero mobile */
 @media (max-width: 640px) {
-  .hero { padding: 60px 20px 40px; }
   .hero-content { padding-bottom: 20px; }
   .hero-upper {
     display: grid;
@@ -687,50 +703,40 @@ image-slot:hover {
   .hero-upper .meta-block .v {
     overflow-wrap: anywhere;
   }
-  .hero-name { font-size: clamp(38px, 12vw, 64px); }
-  .hero-role { font-size: 11px; letter-spacing: 0.12em; }
-  .hero-tagline { font-size: 14px; }
+  .hero-role { letter-spacing: 0.12em; }
   .hero-actions { flex-direction: column; gap: 10px; }
   .hero-actions .btn { width: 100%; text-align: center; }
   .status-pill {
     justify-content: center;
     margin-left: auto;
     margin-right: auto;
-    font-size: 10px;
     text-align: center;
   }
 }
 
 /* Section padding mobile */
 @media (max-width: 640px) {
-  .section { padding: 60px 20px; }
   .section-head { flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 28px; }
 }
 
 /* About mobile */
 @media (max-width: 640px) {
-  .about-text h2 { font-size: 26px; }
-  .about-text p { font-size: 14px; }
   .about-card { padding: 16px; }
-  .about-card .row { font-size: 12px; gap: 10px; }
+  .about-card .row { gap: 10px; }
   .about-card .row .k { flex: 0 0 auto; }
-  .ascii-portrait { font-size: 7px; }
 }
 
 /* Stack tabs mobile */
 @media (max-width: 600px) {
   .stk-tab { min-width: 72px; padding: 12px 8px; }
-  .stk-tab-name { font-size: 9px; }
-  .stk-tab-icon { font-size: 14px; }
   .stk-tab-count { display: none; }
   .stk-panel { padding: 20px 14px; }
-  .stk-chip { font-size: 12px; padding: 7px 10px; }
+  .stk-chip { padding: 7px 10px; }
 }
 
 /* Cases mobile */
 @media (max-width: 640px) {
   .case-head { padding: 16px; gap: 8px; }
-  .case-head .title { font-size: 22px; }
   .case-stack,
   .case-body .features,
   .case-body .summary,
@@ -738,118 +744,32 @@ image-slot:hover {
     min-width: 0;
     overflow-wrap: anywhere;
   }
-  .case-body { padding: 16px; gap: 18px; }
-  .case-body .summary { font-size: 14px; }
-  .case-body .features li { font-size: 14px; }
+  .case-body { padding: 16px; }
 }
 
-/* Process mobile */
+/* Timeline mobile.
+   Most of what used to live here targeted classes the markup never had —
+   .gitlog .row / .title / .note / .entry / .graph do not exist (the component
+   renders .commit, .commit-title, .commit-summary). All that ever applied was
+   hiding the hash and four one-off leadings on .when / .org. Those two are
+   real, so they stay — on tokens. */
 @media (max-width: 640px) {
-  .step { padding: 18px 16px; }
-  .step h3 { font-size: 18px; }
-}
-
-/* Timeline mobile */
-@media (max-width: 640px) {
-  .gitlog { padding: 18px 20px; font-size: 12px; }
-  .gitlog .row {
-    grid-template-columns: 1fr;
-    gap: 5px;
-    padding: 20px 0 20px 18px;
-    position: relative;
-  }
-  .gitlog .row::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 24px;
-    bottom: 20px;
-    width: 1px;
-    background: var(--line-2);
-  }
-  .gitlog .row::after {
-    content: "";
-    position: absolute;
-    left: -3px;
-    top: 25px;
-    width: 7px;
-    height: 7px;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent-glow);
-  }
-  .gitlog .graph,
   .gitlog .hash { display: none; }
   .gitlog .when {
-    font-size: 14px;
-    line-height: 1.2;
-    margin-bottom: 9px;
-  }
-  .gitlog .entry {
-    display: grid;
-    gap: 4px;
-  }
-  .gitlog .title {
-    font-size: 16px;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal);
+    margin-bottom: 8px;
   }
   .gitlog .org {
-    margin: 0;
-    color: var(--fg-dim);
-    font-size: 14px;
-    line-height: 1.35;
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal);
     overflow-wrap: anywhere;
   }
-  .gitlog .note {
-    grid-column: auto;
-    text-align: left;
-    margin-top: 6px;
-    max-width: none;
-    color: var(--fg-dim);
-    font-size: 14px;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-  }
-}
-
-/* FAQ mobile */
-@media (max-width: 640px) {
-  #faq .section > div > div[style],
-  #faq > div + div > div {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-  #faq button {
-    align-items: flex-start !important;
-    gap: 12px !important;
-    font-size: 14px !important;
-    padding: 14px 0 !important;
-  }
-  #faq button > span:first-child {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    gap: 10px !important;
-    align-items: flex-start !important;
-  }
-  #faq button > span:first-child > span:last-child {
-    min-width: 0 !important;
-    line-height: 1.35 !important;
-    overflow-wrap: anywhere !important;
-  }
-  #faq button > span:last-child {
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-  }
-}
-
-/* Contact mobile */
-@media (max-width: 640px) {
-  .contact-text h2 { font-size: 26px; }
 }
 
 /* Footer mobile */
 @media (max-width: 640px) {
-  .footer { padding: 28px 20px 40px; flex-direction: column; gap: 8px; font-size: 11px; }
+  .footer { padding: 28px var(--pad-x) 40px; flex-direction: column; gap: 8px; }
 }
 
 /* Marquee mobile */
@@ -860,7 +780,7 @@ image-slot:hover {
 
 /* Boot screen mobile */
 @media (max-width: 640px) {
-  .boot-box { padding: 14px 16px; font-size: 12px; }
+  .boot-box { padding: 14px 16px; font-size: var(--fs-sm); }
 }
 
 /* Remove scrollbar on mobile horizontal */
@@ -896,7 +816,9 @@ image-slot:hover {
   padding: 6px 10px;
   color: var(--fg-dim);
   font-family: var(--mono);
-  font-size: 9px;
+  /* was 9px - smaller than the indicator dot it sits under, on the only
+     navigation that exists below 900px */
+  font-size: var(--fs-xs);
   transition: color 0.15s;
   text-decoration: none;
 }
@@ -926,14 +848,14 @@ image-slot:hover {
 }
 .ai-title {
   font-family: var(--mono);
-  font-size: clamp(22px, 3.2vw, 34px);
+  font-size: var(--fs-2xl);
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--fg);
   margin: 0;
-  line-height: 1.2;
-  max-width: 28ch;
-  text-wrap: balance;
+  line-height: var(--lh-tight);
+  max-width: var(--measure-head);
+  text-wrap: var(--wrap-head);
 }
 .ai-badge {
   display: inline-flex;
@@ -943,7 +865,7 @@ image-slot:hover {
   border: 1px solid var(--accent);
   color: var(--accent);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.14em;
   white-space: nowrap;
 }
@@ -960,9 +882,9 @@ image-slot:hover {
 }
 .ai-sub {
   color: var(--fg-dim);
-  font-size: 14px;
-  line-height: 1.6;
-  max-width: 68ch;
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
   margin: 0 0 28px;
 }
 
@@ -996,11 +918,11 @@ image-slot:hover {
   border-bottom: 1px dashed var(--line);
   margin-bottom: 14px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .ai-prompt { color: var(--accent); }
 .ai-path { color: var(--fg-dim); }
-.ai-len { margin-left: auto; color: var(--fg-faint); font-size: 11px; }
+.ai-len { margin-left: auto; color: var(--fg-faint); font-size: var(--fs-xs); }
 
 .ai-textarea {
   width: 100%;
@@ -1008,8 +930,8 @@ image-slot:hover {
   border: none;
   color: var(--fg);
   font-family: var(--mono);
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
   padding: 2px 0;
   resize: vertical;
   outline: none;
@@ -1031,7 +953,7 @@ image-slot:hover {
 }
 .ai-chips-label {
   color: var(--fg-faint);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-family: var(--mono);
   margin-right: 4px;
 }
@@ -1041,7 +963,7 @@ image-slot:hover {
   color: var(--fg-dim);
   padding: 6px 11px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -1063,7 +985,7 @@ image-slot:hover {
 .ai-powered {
   color: var(--fg-faint);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.02em;
 }
 .ai-submit {
@@ -1072,7 +994,7 @@ image-slot:hover {
   color: #000;
   padding: 10px 20px;
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 500;
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -1091,7 +1013,7 @@ image-slot:hover {
   background: var(--line);
   color: var(--fg-faint);
 }
-.ai-arrow { font-size: 14px; }
+.ai-arrow { font-size: var(--fs-md); }
 
 .ai-error {
   margin-top: 18px;
@@ -1099,7 +1021,7 @@ image-slot:hover {
   border: 1px solid var(--danger, #ff6b6b);
   background: color-mix(in oklab, var(--danger, #ff6b6b) 6%, transparent);
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--fs-md);
   color: var(--fg);
 }
 
@@ -1122,7 +1044,7 @@ image-slot:hover {
   border-bottom: 1px dashed color-mix(in oklab, var(--accent) 40%, transparent);
   margin-bottom: 18px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
 }
 .ai-ok { color: var(--accent); font-weight: 500; }
 .ai-result-msg { color: var(--fg-dim); }
@@ -1151,23 +1073,22 @@ image-slot:hover {
 }
 .ai-card-k {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--fg-faint);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 .ai-card-v {
   font-family: var(--mono);
-  font-size: 16px;
+  font-size: var(--fs-base);
   color: var(--fg);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 .ai-card.is-accent .ai-card-v {
   color: var(--accent);
-  font-size: 16px;
 }
 .ai-card.is-big .ai-card-v {
-  font-size: 20px;
+  font-size: var(--fs-xl);
 }
 .ai-card-chips {
   display: flex;
@@ -1176,7 +1097,8 @@ image-slot:hover {
 }
 .ai-stack-chip {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-chip);
   color: var(--fg);
   border: 1px solid var(--line-2);
   padding: 3px 8px;
@@ -1184,9 +1106,9 @@ image-slot:hover {
 }
 
 .ai-disclaimer {
-  margin-top: 14px;
+  margin-top: 16px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--fg-faint);
 }
 
@@ -1199,6 +1121,68 @@ image-slot:hover {
 @media (max-width: 480px) {
   .ai-grid { grid-template-columns: 1fr; }
 }
+
+/* ===========================================================
+   FAQ
+   These four sizes used to be inline style objects in faq-ai.jsx, which put the
+   only typography on the site outside the system — and forced a block of
+   `!important` overrides in the mobile sheet just to reach them (one of whose
+   selectors, `#faq .section > div > div[style]`, could never match, since #faq
+   IS the .section). Classes + tokens, and that whole block is gone.
+   =========================================================== */
+.faq-box {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  padding: 0 clamp(16px, 11.3px + 1.3vw, 28px);
+}
+.faq-item { border-bottom: 1px solid var(--line); }
+.faq-item:last-child { border-bottom: none; }
+.faq-q {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  padding: 16px 0;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  font-family: var(--mono);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+}
+.faq-q > .faq-qwrap {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  min-width: 0;
+  max-width: var(--measure);
+}
+.faq-num {
+  color: var(--fg-faint);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--track-caps);
+  flex: 0 0 auto;
+}
+.faq-qt { min-width: 0; overflow-wrap: anywhere; text-wrap: var(--wrap-head); }
+.faq-sign {
+  color: var(--accent);
+  font-size: var(--fs-md);
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.faq-a {
+  color: var(--fg-dim);
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
+  /* was a flat 48px, which ate 19% of a 320px screen and cut the answer to 24ch */
+  padding: 0 0 20px clamp(16px, 6.5px + 2.6vw, 48px);
+  text-wrap: var(--wrap-prose);
+}
+.faq-a .faq-prompt { color: var(--accent); }
 
 /* ===========================================================
    Case links (live / source)
@@ -1219,8 +1203,8 @@ image-slot:hover {
   border: 1px solid var(--line-2);
   background: color-mix(in oklab, var(--bg-3) 74%, transparent);
   color: var(--fg-dim);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-size: var(--fs-sm);
+  letter-spacing: var(--track-mid);
   text-decoration: none;
   transition: color 0.18s, border-color 0.18s, background 0.18s;
 }
@@ -1243,13 +1227,19 @@ image-slot:hover {
    =========================================================== */
 .lab-note {
   color: var(--fg-dim);
-  font-size: 14px;
-  max-width: 70ch;
-  margin: 0 0 22px;
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
+  margin: 0 0 24px;
+  text-wrap: var(--wrap-prose);
 }
+/* auto-fill instead of three hard breakpoints: the old ladder made the card
+   text NARROWER as the window grew (67ch at 640px, 29ch at 641px, 50ch at
+   1000px, 33ch at 1024px). The 1px gap draws the grid lines, so a variable
+   column count costs nothing. */
 .lab-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
@@ -1272,8 +1262,8 @@ image-slot:hover {
 }
 .lab-index {
   color: var(--fg-faint);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
 }
 .lab-lang {
   margin-left: auto;
@@ -1284,31 +1274,36 @@ image-slot:hover {
   height: 22px;
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
 .lab-name {
   margin: 0;
-  font-size: 20px;
+  font-size: var(--fs-xl);
+  line-height: var(--lh-snug);
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--track-tight);
   color: var(--fg);
   overflow-wrap: anywhere;
+  text-wrap: var(--wrap-head);
 }
+/* 11px -> 12px: lowercase Cyrillic again */
 .lab-kind {
   color: var(--accent);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   letter-spacing: 0.04em;
-  margin: 5px 0 10px;
+  margin: 6px 0 10px;
   padding-bottom: 10px;
   border-bottom: 1px dashed var(--line);
 }
 .lab-desc {
   color: var(--fg-dim);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure-narrow);
   margin: 0 0 14px;
+  text-wrap: var(--wrap-prose);
 }
 .lab-tags {
   display: flex;
@@ -1321,8 +1316,8 @@ image-slot:hover {
   border: 1px solid var(--line-2);
   background: color-mix(in oklab, var(--bg-3) 74%, transparent);
   padding: 4px 7px;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-chip);
   max-width: 100%;
   overflow-wrap: anywhere;
   transition: color 0.18s, border-color 0.18s, background 0.18s;
@@ -1347,8 +1342,8 @@ image-slot:hover {
   padding: 5px 11px;
   border: 1px solid var(--line-2);
   color: var(--fg-dim);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-size: var(--fs-sm);
+  letter-spacing: var(--track-mid);
   text-decoration: none;
   transition: color 0.18s, border-color 0.18s, background 0.18s;
 }
@@ -1366,14 +1361,9 @@ image-slot:hover {
 .lab-links a.is-live { color: var(--fg); }
 .lab-links a.is-live b { color: var(--accent); }
 
-@media (max-width: 1000px) {
-  .lab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 @media (max-width: 640px) {
-  .lab-grid { grid-template-columns: 1fr; }
   .lab-card { padding: 14px 16px 16px; }
-  .lab-name { font-size: 18px; }
-  .case-links a, .lab-links a { font-size: 12px; padding: 5px 10px; }
+  .case-links a, .lab-links a { padding: 5px 10px; }
 }
 
 /* ===========================================================
@@ -1445,12 +1435,18 @@ image-slot:hover {
 }
 
 /* "// task" sets up the problem before "// solution" answers it */
+/* Was a flat 16px, so below 640px this lead-in came out LARGER than the
+   .summary it introduces (16 vs 14). Both are the same role, so both are
+   --fs-base and the pair can no longer drift apart. */
 .case-body .case-context {
   color: var(--fg-dim);
-  font-size: 16px;
+  font-size: var(--fs-base);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
   margin: 0 0 20px;
   padding-left: 12px;
   border-left: 1px solid var(--accent);
+  text-wrap: var(--wrap-prose);
 }
 
 
@@ -1495,21 +1491,21 @@ image-slot:hover {
 .channel-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .channel-k {
   color: var(--fg-faint);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
   text-transform: uppercase;
 }
 .channel-v {
   color: var(--fg);
-  font-size: 14px;
+  font-size: var(--fs-md);
   overflow-wrap: anywhere;
 }
 .channel:hover .channel-v { color: var(--accent); }
 
-.channel-hint { color: var(--fg-faint); font-size: 12px; white-space: nowrap; }
+.channel-hint { color: var(--fg-faint); font-size: var(--fs-sm); white-space: nowrap; }
 .channel-go {
   color: var(--fg-faint);
-  font-size: 14px;
+  font-size: var(--fs-md);
   transition: color 0.2s, transform 0.2s;
 }
 .channel:hover .channel-go { color: var(--accent); transform: translateX(3px); }
@@ -1519,4 +1515,19 @@ image-slot:hover {
   .channel-icon { width: 34px; height: 34px; }
   /* the hint is a nicety; the address is not */
   .channel-hint { display: none; }
+}
+/* Same trade in the two-column contact layout: between 1001px and 1200px the
+   value column drops to ~22ch and the address breaks mid-word. */
+@media (min-width: 1001px) and (max-width: 1200px) {
+  .channel-hint { display: none; }
+}
+/* Below ~340px the hint is already gone and the value column is still only
+   21.5ch (measured at 320px) against a 23-character address, so
+   overflow-wrap: anywhere splits it as "...gmail.c / om". The chevron is the
+   next thing to give up: it is aria-hidden decoration and the whole row is
+   already the link. Dropping the track as well as the glyph reclaims its
+   column gap too, which is what actually buys the line. */
+@media (max-width: 360px) {
+  .channel { grid-template-columns: auto minmax(0, 1fr); gap: 11px; }
+  .channel-go { display: none; }
 }

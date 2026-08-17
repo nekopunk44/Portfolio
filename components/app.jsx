@@ -73,6 +73,13 @@ const App = () => {
     document.documentElement.style.setProperty("--accent", ACCENTS[tweaks.accent] || ACCENTS.green);
   }, [tweaks.accent]);
 
+  /* The document stayed lang="ru" even with the whole UI switched to English —
+     so screen readers read English with Russian phonetics, and any :lang() or
+     hyphenation rule would apply the wrong language's typographic rules. */
+  useEffect(() => {
+    document.documentElement.lang = tweaks.lang;
+  }, [tweaks.lang]);
+
   useEffect(() => {
     const onScroll = () => {
       let current = "home";
@@ -230,7 +237,7 @@ const App = () => {
         <FAQ t={t} />
         <Contact t={t} profile={profile} />
         <footer className="footer">
-          <span>© {new Date().getFullYear()} Vladislav Bredihin — {t.footer}</span>
+          <span>© {new Date().getFullYear()} Vladislav Bredihin{" — "}{t.footer}</span>
           <span>press <span className="kbd">`</span> for shell · <span className="kbd">?</span> for help</span>
         </footer>
       </div>

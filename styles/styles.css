@@ -8,7 +8,10 @@
   --bg-3: #17171a;
   --fg: #e8e8e6;
   --fg-dim: #8a8a86;          /* 5.71:1 on --bg */
-  --fg-faint: #7a7a76;        /* 4.59:1 on --bg — WCAG AA for body text */
+  /* was #7a7a76 — that only cleared 4.5:1 against --bg itself, and dropped to
+     4.41 on --bg-2 and 4.15 on --bg-3, where most of these labels actually sit.
+     #868682 is 5.41 / 5.20 / 4.89 on bg / bg-2 / bg-3: same grey, AA everywhere. */
+  --fg-faint: #868682;
   --line: #242427;
   --line-2: #2e2e32;
   --accent: #7dff9e;          /* phosphor green — overridden by tweaks */
@@ -19,6 +22,76 @@
   --mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --display: "JetBrains Mono", ui-monospace, monospace;
   --crt-opacity: 0.35;
+
+  /* =========================================================
+     TYPE SYSTEM
+     One scale, one leading rule, one set of measures. Every size on the
+     site resolves to a token below — no per-component px, no font-size
+     inside a media query.
+
+     Two bands, on purpose:
+       · chrome  (11 / 12 / 14) is FIXED. A terminal's chrome is the same
+         size on a phone and on a 27" display; shrinking it further on
+         mobile — which the old media queries did — only made it worse.
+       · content (16 and up) is FLUID, and every fluid token shares the
+         same two anchors: 360px and 1280px (the .section ceiling). They
+         therefore reach their maximum together, so the ratio between two
+         levels is constant at every width instead of drifting 1.6x.
+     The content band is a 1.125 ladder off the 16px root; the chrome band
+     keeps the site's own measured steps, since 12px is the single most
+     common size here (55% of all text) and must not inflate.
+     ========================================================= */
+  --fs-xs: 11px;      /* caps keys, indices, badges — the floor for tracked caps */
+  --fs-sm: 12px;      /* the dominant chrome size */
+  --fs-md: 14px;      /* secondary text, list bodies, controls */
+  --fs-base: clamp(14.25px, 13.57px + 0.19vw, 16px);   /* running prose */
+  --fs-lg:   clamp(16px, 15.22px + 0.22vw, 18px);      /* minor headings */
+  --fs-xl:   clamp(18px, 17.12px + 0.24vw, 20.25px);   /* card headings */
+  --fs-2xl:  clamp(22px, 16.52px + 1.52vw, 36px);      /* case titles */
+  --fs-3xl:  clamp(26px, 18.96px + 1.96vw, 44px);      /* section headings */
+  --fs-metric: clamp(30px, 21.39px + 2.39vw, 52px);    /* the big numbers */
+  --fs-role: clamp(11px, 9.04px + 0.54vw, 16px);       /* tracked hero role */
+  --fs-hero: min(11.5vw, 176px);                       /* poster name */
+
+  /* Leading is a function of size, not a global constant. The old sheet gave
+     1.55 to a 10px label and to a 36px title alike, which left ~20px of dead
+     air around every case heading. */
+  --lh-flush: 1;      /* box hugs the glyph: icons, big numerals */
+  --lh-display: 0.88; /* .hero-name only — the site's signature */
+  --lh-tight: 1.15;   /* --fs-2xl / --fs-3xl */
+  --lh-snug: 1.4;     /* --fs-lg / --fs-xl */
+  --lh-normal: 1.55;  /* body default and all chrome */
+  --lh-prose: 1.6;    /* paragraphs that actually wrap */
+  --lh-chip: 1.2;     /* single-line pills, where leading sets pill height */
+
+  /* Tracking carries the role difference between an 11px key and a 12px
+     label far more than the 1px of size does. Named, not unified. */
+  --track-caps: 0.1em;
+  --track-label: 0.08em;
+  --track-mid: 0.06em;
+  --track-tight: -0.02em;
+  --track-hero: -0.04em;
+
+  /* Measure. 1ch = 0.6em in JetBrains Mono, so 62ch = 37.2em — the top of the
+     comfortable range once you account for the mono advance. Russian packs
+     fewer words per character than English, so this is calibrated low. */
+  --measure: 62ch;         /* running prose ceiling */
+  --measure-lede: 56ch;    /* intro paragraphs */
+  --measure-narrow: 46ch;  /* text inside grid cards */
+  --measure-head: 24ch;    /* large headings, works with --wrap-head */
+
+  /* Wrapping strategy, decided once. */
+  --wrap-head: balance;
+  --wrap-prose: pretty;
+
+  /* Fluid space, same 360→1280 anchors as the type. Replaces the hard step
+     that used to shrink the content by 39px as the window got wider. */
+  --pad-x: clamp(20px, 12.17px + 2.17vw, 40px);
+  --pad-y: clamp(60px, 36.52px + 6.52vw, 120px);
+  --gap-grid: clamp(28px, 15.48px + 3.48vw, 60px);
+  --gap-card: clamp(18px, 12.52px + 1.52vw, 32px);
+  /* Left lane kept clear for the fixed .sidenav (measured 20..106.6px). */
+  --rail-min: 112px;
 }
 
 * { box-sizing: border-box; }
@@ -35,9 +108,16 @@ html, body {
   color: var(--fg);
   font-family: var(--mono);
   font-size: 16px;
-  line-height: 1.55;
+  line-height: var(--lh-normal);
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: "ss01", "cv11", "liga" 0;
+  /* was font-feature-settings: "ss01","cv11","liga" 0 — a dead declaration:
+     ss01 and cv11 are Inter tags and exist in no JetBrains Mono file, and the
+     coding ligatures live in `calt`, so "liga" 0 never switched them off.
+     This states the intent the old line was reaching for. */
+  font-variant-ligatures: none;
+  /* Deliberate: no auto-hyphenation. Chrome ships no Russian dictionary, and
+     where a browser does have one it saws monospaced words in half. */
+  hyphens: manual;
   overflow-x: hidden;
 }
 
@@ -100,20 +180,31 @@ button { font-family: inherit; font-size: inherit; }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-dim);
 }
-.topbar .dots { display: flex; gap: 6px; }
+.topbar .dots { display: flex; gap: 6px; flex: 0 0 auto; }
 .topbar .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line-2); }
 .topbar .dot.alive { background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
-.topbar .path { color: var(--fg); }
+/* The window title is the one thing here allowed to lose characters: at 320px
+   the flex row is 26px over budget, and the old sheet paid for that by
+   clipping the EN button off the right edge instead. */
+.topbar .path {
+  color: var(--fg);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .topbar .path b { color: var(--accent); font-weight: 500; }
 .topbar .spacer { flex: 1; }
-.topbar .meta { display: flex; gap: 16px; color: var(--fg-dim); }
+.topbar .meta { display: flex; gap: 16px; color: var(--fg-dim); flex: 0 0 auto; }
 .topbar .meta span { display: inline-flex; align-items: center; gap: 6px; }
 .topbar .meta .blip { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); animation: pulse 1.6s infinite; }
 
-.lang-switch { display: inline-flex; border: 1px solid var(--line-2); border-radius: 2px; overflow: hidden; font-size: 11px; }
+/* `overflow: hidden` used to clip 28px off this at 320px — i.e. the whole EN
+   button. Nothing here needs clipping; the path absorbs the squeeze instead. */
+.lang-switch { display: inline-flex; border: 1px solid var(--line-2); border-radius: 2px; font-size: var(--fs-xs); flex: 0 0 auto; }
 .lang-switch button { padding: 3px 8px; background: transparent; color: var(--fg-dim); border: none; cursor: pointer; font-family: var(--mono); }
 .lang-switch button.active { background: var(--accent); color: #000; }
 
@@ -132,7 +223,7 @@ button { font-family: inherit; font-size: inherit; }
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-faint);
 }
 .sidenav a {
@@ -160,7 +251,7 @@ button { font-family: inherit; font-size: inherit; }
 .section {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 120px 40px;
+  padding: var(--pad-y) var(--pad-x);
   position: relative;
 }
 .section + .section { border-top: 1px dashed var(--line); }
@@ -174,15 +265,15 @@ button { font-family: inherit; font-size: inherit; }
   border-bottom: 1px solid var(--line);
   padding-bottom: 12px;
 }
-.section-head .label { color: var(--fg-faint); font-size: 12px; letter-spacing: 0.08em; font-weight: 400; margin: 0; }
-.section-head .cmd { color: var(--accent); font-size: 12px; }
+.section-head .label { color: var(--fg-faint); font-size: var(--fs-sm); letter-spacing: var(--track-label); font-weight: 400; margin: 0; }
+.section-head .cmd { color: var(--accent); font-size: var(--fs-sm); }
 .section-head .cmd::before { content: "$ "; color: var(--fg-faint); }
 
 /* ---------- HERO ---------- */
 .hero {
   position: relative;
   min-height: 100vh;
-  padding: 80px 40px 60px;
+  padding: clamp(60px, 52.17px + 2.17vw, 80px) var(--pad-x) clamp(40px, 32.17px + 2.17vw, 60px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -208,20 +299,24 @@ button { font-family: inherit; font-size: inherit; }
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-dim);
   padding: 0 0px;
 }
 .hero-upper .meta-block { display: flex; flex-direction: column; gap: 4px; }
-.hero-upper .meta-block .k { color: var(--fg-faint); font-size: 11px; letter-spacing: 0.08em; }
+.hero-upper .meta-block .k { color: var(--fg-faint); font-size: var(--fs-xs); letter-spacing: var(--track-label); }
 .hero-upper .meta-block .v { color: var(--fg); }
 
 .hero-name {
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(56px, 11.5vw, 176px);
-  line-height: 0.88;
-  letter-spacing: -0.04em;
+  /* One formula instead of two. The old pair — clamp(56,11.5vw,176) here and
+     clamp(38,12vw,64) in the mobile sheet — jumped 64→73.7px across the 641px
+     boundary, and the 56px floor never rendered at all. Same 11.5vw line, now
+     continuous all the way down. */
+  font-size: var(--fs-hero);
+  line-height: var(--lh-display);
+  letter-spacing: var(--track-hero);
   margin: 0;
   color: var(--fg);
   position: relative;
@@ -240,17 +335,21 @@ button { font-family: inherit; font-size: inherit; }
 @keyframes blink { 50% { opacity: 0; } }
 
 .hero-role {
-  font-size: clamp(13px, 1.4vw, 16px);
+  font-size: var(--fs-role);
   color: var(--accent);
   letter-spacing: 0.18em;
-  margin: 18px 0 12px;
+  margin: 16px 0 12px;
 }
 .hero-tagline {
-  max-width: 620px;
-  font-size: clamp(15px, 1.4vw, 17px);
+  /* was max-width: 620px — a px ceiling on a fluid size means the line got
+     LONGER in characters as the screen narrowed (61ch at 1440, 69ch at 1000).
+     In ch it is the same measure at every width. */
+  max-width: var(--measure-lede);
+  font-size: var(--fs-base);
   color: var(--fg-dim);
   margin: 0 0 32px;
-  line-height: 1.6;
+  line-height: var(--lh-prose);
+  text-wrap: var(--wrap-prose);
 }
 .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
 
@@ -260,7 +359,7 @@ button { font-family: inherit; font-size: inherit; }
   background: transparent;
   color: var(--fg);
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.18s;
   text-transform: lowercase;
@@ -282,7 +381,7 @@ button { font-family: inherit; font-size: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--fs-md);
   color: var(--fg);
   padding: 24px;
   transition: opacity 0.4s, visibility 0.4s;
@@ -298,8 +397,8 @@ button { font-family: inherit; font-size: inherit; }
 .boot-box .header {
   color: var(--accent);
   margin-bottom: 10px;
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-size: var(--fs-sm);
+  letter-spacing: var(--track-label);
   border-bottom: 1px dashed var(--line);
   padding-bottom: 8px;
 }
@@ -323,8 +422,8 @@ button { font-family: inherit; font-size: inherit; }
   border: 1px solid var(--accent);
   color: var(--accent);
   padding: 4px 10px;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-caps);
   background: var(--accent-soft);
   margin-bottom: 20px;
 }
@@ -339,29 +438,33 @@ button { font-family: inherit; font-size: inherit; }
 /* ---------- ABOUT ---------- */
 .about-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 60px;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 28vw, 380px);
+  gap: var(--gap-grid);
   align-items: start;
 }
 .about-text h2 {
-  font-size: clamp(28px, 3.2vw, 44px);
+  font-size: var(--fs-3xl);
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
   margin: 0 0 28px;
+  max-width: var(--measure-head);
+  text-wrap: var(--wrap-head);
 }
 .about-text p {
   color: var(--fg-dim);
-  font-size: 16px;
-  max-width: 62ch;
+  font-size: var(--fs-base);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
   margin: 0 0 16px;
+  text-wrap: var(--wrap-prose);
 }
 .about-text p::before { content: "# "; color: var(--accent); }
 .about-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
 .about-tags span {
   border: 1px solid var(--line-2);
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-dim);
 }
 .about-tags span:hover { color: var(--accent); border-color: var(--accent); }
@@ -370,7 +473,7 @@ button { font-family: inherit; font-size: inherit; }
   border: 1px solid var(--line);
   background: var(--bg-2);
   padding: 20px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   min-width: 0;
   overflow: hidden;
 }
@@ -379,17 +482,13 @@ button { font-family: inherit; font-size: inherit; }
 .about-card .row .k { color: var(--fg-dim); }
 .about-card .row .v { color: var(--fg); min-width: 0; text-align: right; overflow-wrap: anywhere; }
 .about-card .row .v a:hover { color: var(--accent); }
-.ascii-portrait {
-  white-space: pre;
-  font-family: var(--mono);
-  font-size: 9px;
-  line-height: 1;
-  color: var(--accent);
-  margin: 16px 0 4px;
-  opacity: 0.9;
-}
+/* .ascii-portrait removed — no component has rendered it for a while, and it
+   was the only 9px/7px type on the site. */
 
-@media (max-width: 900px) { .about-grid { grid-template-columns: 1fr; } }
+/* Two columns used to start at 901px, which cut the paragraph to 35 characters
+   the instant the window grew past 900. 1000px is where the text column can
+   still hold ~57ch. */
+@media (max-width: 1000px) { .about-grid { grid-template-columns: 1fr; } }
 
 /* ---------- STACK ---------- */
 .stack-grid {
@@ -409,12 +508,12 @@ button { font-family: inherit; font-size: inherit; }
 .stack-cell:nth-child(3n) { border-right: none; }
 .stack-cell:nth-last-child(-n+3) { border-bottom: none; }
 .stack-cell:hover { background: color-mix(in oklch, var(--accent) 4%, var(--bg-2)); }
-.stack-cell .dir { color: var(--accent); font-size: 14px; margin-bottom: 12px; }
+.stack-cell .dir { color: var(--accent); font-size: var(--fs-md); margin-bottom: 12px; }
 .stack-cell .dir::before { content: "└─ "; color: var(--fg-faint); }
 .stack-cell ul { list-style: none; margin: 0; padding: 0; }
 .stack-cell li {
   color: var(--fg);
-  font-size: 14px;
+  font-size: var(--fs-md);
   padding: 3px 0 3px 18px;
   position: relative;
 }
@@ -455,8 +554,18 @@ button { font-family: inherit; font-size: inherit; }
   align-items: center;
   cursor: pointer;
 }
-.case-head .code { color: var(--fg-faint); font-size: 12px; letter-spacing: 0.1em; }
-.case-head .title { font-size: clamp(22px, 2.8vw, 36px); font-weight: 400; letter-spacing: -0.02em; color: var(--fg); margin: 0; }
+.case-head .code { color: var(--fg-faint); font-size: var(--fs-sm); letter-spacing: var(--track-caps); }
+/* This heading inherited 1.55 from body, so a 36px single-line title carried a
+   55.8px line box — ~20px of dead air per card, six cards deep. */
+.case-head .title {
+  font-size: var(--fs-2xl);
+  font-weight: 400;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  margin: 0;
+  text-wrap: var(--wrap-head);
+}
 /* the heading holds a real button; ::after stretches the hit area over the whole row */
 .case-toggle {
   appearance: none;
@@ -473,34 +582,45 @@ button { font-family: inherit; font-size: inherit; }
 .case-toggle::after { content: ""; position: absolute; inset: 0; z-index: 1; }
 .case-toggle:focus { outline: none; }
 .case-toggle:focus-visible::after { outline: 2px solid var(--accent); outline-offset: -4px; }
-.case-kind { color: var(--fg-dim); font-size: 14px; margin-top: 4px; }
-.case-head .meta { text-align: right; font-size: 12px; color: var(--fg-dim); }
+.case-kind { color: var(--fg-dim); font-size: var(--fs-md); line-height: var(--lh-normal); margin-top: 4px; max-width: var(--measure); }
+.case-head .meta { text-align: right; font-size: var(--fs-sm); color: var(--fg-dim); }
 .case-head .meta span { display: block; }
 .case-head .meta .case-sign { color: var(--accent); margin-top: 6px; }
 
 .case-body {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
-  gap: 32px;
+  gap: var(--gap-card);
   padding: 26px;
   min-width: 0;
 }
 .case-body > * { min-width: 0; }
-.case-body .summary { color: var(--fg-dim); font-size: 16px; margin: 0 0 18px; }
-.case-body h4 { margin: 0 0 10px; font-size: 12px; color: var(--fg-faint); letter-spacing: 0.1em; font-weight: 400; }
+.case-body .summary {
+  color: var(--fg-dim);
+  font-size: var(--fs-base);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
+  margin: 0 0 18px;
+  text-wrap: var(--wrap-prose);
+}
+.case-body h4 { margin: 0 0 10px; font-size: var(--fs-sm); color: var(--fg-faint); letter-spacing: var(--track-caps); font-weight: 400; }
 .case-body .features { list-style: none; margin: 0 0 20px; padding: 0; }
 .case-body .features li {
   padding: 4px 0 4px 18px;
   position: relative;
   color: var(--fg);
-  font-size: 14px;
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
+  text-wrap: var(--wrap-prose);
 }
 .case-body .features li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); }
 
 .case-stack { display: flex; flex-wrap: wrap; gap: 6px; }
 .case-stack span {
-  font-size: 12px;
-  padding: 3px 8px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-chip);
+  padding: 4px 8px;
   border: 1px solid var(--line-2);
   color: var(--fg-dim);
 }
@@ -513,16 +633,16 @@ button { font-family: inherit; font-size: inherit; }
   gap: 22px;
 }
 .metric .k {
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: var(--fs-metric);
   font-weight: 400;
   letter-spacing: -0.03em;
   color: var(--accent);
   font-family: var(--display);
-  line-height: 1;
+  line-height: var(--lh-flush);
   text-shadow: 0 0 18px var(--accent-glow);
 }
 .metric .v {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--fg-dim);
   margin-top: 4px;
 }
@@ -539,13 +659,15 @@ button { font-family: inherit; font-size: inherit; }
   font-family: var(--mono);
   border: 1px solid var(--line);
   background: var(--bg-2);
-  padding: 6px 26px;
-  font-size: 14px;
+  padding: 6px clamp(14px, 9.3px + 1.3vw, 26px);
+  font-size: var(--fs-md);
 }
 .gitlog .commit {
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  gap: 22px;
+  /* the rail + gutter used to eat 28% of a 320px screen, leaving list items
+     22 characters wide */
+  grid-template-columns: clamp(12px, 9.65px + 0.65vw, 18px) minmax(0, 1fr);
+  gap: clamp(12px, 8.09px + 1.09vw, 22px);
   padding: 24px 0;
   border-bottom: 1px dashed var(--line);
 }
@@ -582,87 +704,132 @@ button { font-family: inherit; font-size: inherit; }
 }
 
 .commit-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.commit-meta .hash { color: var(--fg-faint); font-size: 11px; letter-spacing: 0.05em; }
-.commit-meta .when { color: var(--accent); font-size: 12px; }
+.commit-meta .hash { color: var(--fg-faint); font-size: var(--fs-xs); letter-spacing: 0.05em; }
+.commit-meta .when { color: var(--accent); font-size: var(--fs-sm); }
 .commit-meta .head-tag {
   color: #000;
   background: var(--accent);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-mid);
   padding: 1px 7px;
 }
 .commit-title {
-  margin: 9px 0 0;
-  font-size: 18px;
+  margin: 8px 0 0;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-snug);
   font-weight: 400;
   letter-spacing: -0.01em;
   color: var(--fg);
+  max-width: var(--measure);
+  text-wrap: var(--wrap-head);
 }
-.commit-title .org { color: var(--fg-dim); font-size: 12px; }
-.commit-summary { margin: 9px 0 0; color: var(--fg-dim); font-size: 14px; max-width: 76ch; }
-.commit-items { list-style: none; margin: 14px 0 0; padding: 0; }
+.commit-title .org { color: var(--fg-dim); font-size: var(--fs-sm); }
+.commit-summary {
+  margin: 8px 0 0;
+  color: var(--fg-dim);
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
+  text-wrap: var(--wrap-prose);
+}
+.commit-items { list-style: none; margin: 16px 0 0; padding: 0; }
 .commit-items li {
   position: relative;
-  padding-left: 20px;
+  padding-left: clamp(14px, 11.65px + 0.65vw, 20px);
   margin-bottom: 8px;
   color: var(--fg-dim);
-  font-size: 14px;
-  line-height: 1.6;
-  max-width: 80ch;
+  font-size: var(--fs-md);
+  line-height: var(--lh-prose);
+  max-width: var(--measure);
+  text-wrap: var(--wrap-prose);
 }
 /* a diff-style marker, in keeping with the git-log framing */
 .commit-items li::before { content: "+"; position: absolute; left: 0; color: var(--accent); }
-.commit-stack { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 15px; }
+.commit-stack { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 16px; }
 .commit-stack span {
   color: var(--fg-dim);
   border: 1px solid var(--line-2);
   background: color-mix(in oklab, var(--bg-3) 74%, transparent);
-  padding: 3px 7px;
-  font-size: 12px;
+  padding: 4px 7px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-chip);
 }
 
+/* The old @700 block only restated sizes that were already in force and reset a
+   grid that is now fluid; the padding step is all that was doing work. */
 @media (max-width: 700px) {
-  .gitlog { padding: 4px 18px; }
-  .gitlog .commit { grid-template-columns: 14px minmax(0, 1fr); gap: 15px; padding: 20px 0; }
-  .commit-title { font-size: 16px; }
-  .commit-summary, .commit-items li { font-size: 14px; }
+  .gitlog .commit { padding: 20px 0; }
 }
 
 /* ---------- CONTACT ---------- */
 .contact-grid {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 60px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: var(--gap-grid);
   align-items: start;
 }
 .contact-text h2 {
-  font-size: clamp(28px, 3.2vw, 44px);
+  font-size: var(--fs-3xl);
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
   margin: 0 0 20px;
+  max-width: var(--measure-head);
+  text-wrap: var(--wrap-head);
 }
 .contact-text p {
   color: var(--fg-dim);
+  font-size: var(--fs-base);
+  line-height: var(--lh-prose);
   margin: 0 0 24px;
-  max-width: 50ch;
+  /* was 50ch while the identically-roled .about-text p ran to 62ch */
+  max-width: var(--measure-lede);
+  text-wrap: var(--wrap-prose);
 }
 
-@media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } }
+/* Two columns split the heading column harder than about's does, so contact
+   stays single-column a little longer. */
+@media (max-width: 1100px) { .contact-grid { grid-template-columns: 1fr; } }
 
 /* ---------- Footer ---------- */
 .footer {
-  padding: 40px 40px 60px;
+  padding: 40px var(--pad-x) 60px;
   max-width: 1280px;
   margin: 0 auto;
   border-top: 1px dashed var(--line);
   display: flex;
   justify-content: space-between;
   color: var(--fg-faint);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
+}
+
+/* ---------- Sidenav rail ----------
+   .sidenav is position:fixed at x = 20..106.6px, but the content was centred as
+   if it weren't there — so from 901px up to ~1490px the nav printed straight
+   over the prose (66.6px of overlap at 1024px, measured; the hero collided all
+   the way to 1440px). Reserve the lane, paying only the shortfall: once the
+   natural centring margin is wide enough on its own, both expressions resolve
+   back to --pad-x / 0 and nothing moves.
+   Placed after every padding shorthand above so it is not overwritten. */
+@media (min-width: 901px) {
+  .section,
+  .footer {
+    padding-left: max(var(--pad-x), calc(var(--rail-min) - max(0px, (100vw - 1280px) / 2)));
+  }
+  /* margin, not padding, for the hero: .hero-upper is absolutely positioned
+     inside .hero-content, so it resolves against the padding box and padding
+     would leave the LOCATION/EXPERIENCE row sitting under the nav. */
+  .hero-content {
+    /* width:auto, not the base width:100% — with an explicit left margin the
+       full-width box would hang off the right edge (48px at 902px, silently
+       swallowed by overflow-x: hidden). */
+    width: auto;
+    margin-left: max(calc(var(--rail-min) - var(--pad-x)), calc((100% - 1280px) / 2));
+    margin-right: 0;
+  }
 }
 
 /* ---------- Reveal animation ---------- */
@@ -694,13 +861,13 @@ button { font-family: inherit; font-size: inherit; }
 /* ---------- Small utility ---------- */
 .kbd {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   padding: 2px 6px;
   border: 1px solid var(--line-2);
   border-bottom-width: 2px;
   color: var(--fg-dim);
 }
-.mono-small { font-size: 12px; color: var(--fg-faint); letter-spacing: 0.05em; }
+.mono-small { font-size: var(--fs-sm); color: var(--fg-faint); letter-spacing: 0.05em; }
 
 /* ===========================================================
    Accessibility primitives

@@ -605,7 +605,11 @@ const CaseCard = ({ c, open, onToggle }) => {
           <div className="case-metrics">
             {c.metrics.map(m => (
               <div key={m.v} className="metric">
-                <div className="k"><AnimatedNumber target={m.k} /></div>
+                {/* reserve the final character count up front, so the counter
+                    does not slide sideways for the 1.1s it spends counting up */}
+                <div className="k" style={{ "--metric-slots": String(m.k).length }}>
+                  <AnimatedNumber target={m.k} />
+                </div>
                 <div className="v">{m.v}</div>
               </div>
             ))}
@@ -632,7 +636,7 @@ const Process = ({ t }) => {
             <div className="num">STEP / {s.n}</div>
             <h3>{s.t}</h3>
             <p>{s.d}</p>
-            <div className="tools"><b>→</b> {s.tools}</div>
+            <div className="tools"><b>{"->"}</b> {s.tools}</div>
             <div className="arrow">▸</div>
           </div>
         ))}
@@ -722,7 +726,7 @@ const Timeline = ({ t }) => (
                 {i === 0 && <span className="head-tag">HEAD</span>}
               </div>
               <h3 className="commit-title">
-                {row.title}<span className="org"> — {row.org}</span>
+                {row.title}<span className="org">{" — "}{row.org}</span>
               </h3>
               {row.summary && <p className="commit-summary">{row.summary}</p>}
               {row.items && (

@@ -62,43 +62,17 @@ const SmoothCollapseF = ({ open, children }) => {
 };
 
 const FAQItem = ({ q, a, open, onToggle, idx }) => (
-  <div style={{
-    borderBottom: "1px solid var(--line)",
-    padding: "0",
-  }}>
-    <button
-      onClick={onToggle}
-      style={{
-        width: "100%",
-        background: "transparent",
-        border: "none",
-        color: "var(--fg)",
-        padding: "18px 0",
-        textAlign: "left",
-        cursor: "pointer",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 18,
-        fontFamily: "var(--mono)",
-        fontSize: 16,
-      }}
-    >
-      <span style={{ display: "flex", gap: 14, alignItems: "center" }}>
-        <span style={{ color: "var(--fg-faint)", fontSize: 12, letterSpacing: "0.1em" }}>Q{String(idx + 1).padStart(2, "0")}</span>
-        <span>{q}</span>
+  <div className="faq-item">
+    <button className="faq-q" onClick={onToggle}>
+      <span className="faq-qwrap">
+        <span className="faq-num">Q{String(idx + 1).padStart(2, "0")}</span>
+        <span className="faq-qt">{q}</span>
       </span>
-      <span style={{ color: "var(--accent)", fontSize: 14 }}>{open ? "[ − ]" : "[ + ]"}</span>
+      <span className="faq-sign">{open ? "[ − ]" : "[ + ]"}</span>
     </button>
     <SmoothCollapseF open={open}>
-      <div style={{
-        color: "var(--fg-dim)",
-        fontSize: 14,
-        padding: "0 0 20px 48px",
-        lineHeight: 1.6,
-        maxWidth: "72ch",
-      }}>
-        <span style={{ color: "var(--accent)" }}>{"> "}</span>{a}
+      <div className="faq-a">
+        <span className="faq-prompt">{"> "}</span>{a}
       </div>
     </SmoothCollapseF>
   </div>
@@ -114,11 +88,7 @@ const FAQ = ({ t }) => {
         <div className="cmd">{t.faq.cmd}</div>
       </div>
       <Reveal>
-        <div style={{
-          border: "1px solid var(--line)",
-          background: "var(--bg-2)",
-          padding: "0 28px",
-        }}>
+        <div className="faq-box">
           {t.faq.items.map((it, i) => (
             <FAQItem
               key={i}
@@ -142,7 +112,7 @@ const AIBriefSection = ({ lang }) => {
     cmd: "./ai-estimate --model=haiku-4.5",
     title: "Опишите задачу — получите оценку за 5 секунд",
     sub: "AI-ассистент разберёт описание и предложит формат, стек, срок и ориентировочный бюджет. Это не коммерческое предложение — финальные цифры после брифа.",
-    placeholder: "нужен сайт-визитка для архитектурного бюро с портфолио и формой заявки...",
+    placeholder: "нужен сайт-визитка для архитектурного бюро с портфолио и формой заявки…",
     btn: "./estimate",
     btnLoading: "analyzing",
     min: "минимум 20 символов",
