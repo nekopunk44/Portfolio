@@ -1,0 +1,120 @@
+/* Шрифт берём из ассетов сайта — на печати и на экране один и тот же. */
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:100 800;font-display:swap;
+  src:url(../assets/fonts/jetbrains-mono-cyrillic.woff2) format("woff2");
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:100 800;font-display:swap;
+  src:url(../assets/fonts/jetbrains-mono-latin.woff2) format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+2000-206F,U+2192,U+2212,U+2215}
+
+:root{
+  --bg:#0b0b0d; --ink:#e8e8e6; --dim:#8a8a86; --line:#2e2e32;
+  --acc:#7dff9e;      /* фирменный зелёный сайта */
+  --warn:#ffd580;
+  --measure:100ch;     /* 1ch = 0.6em в моноширинном, см. комментарий у li */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+/* Ссылки кликабельные, но визуально неотличимы от остального текста:
+   Chrome при печати в PDF превращает <a href> в аннотации /Link. */
+a{color:inherit;text-decoration:none}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  font-size:8.4pt; line-height:1.42;
+}
+/* Каждый лист — ровно A4. Флекс-колонка, чтобы подвал прижимался к низу листа. */
+.page{width:210mm;height:297mm;margin:0 auto;padding:11mm 12mm 9mm;background:var(--bg);
+  display:flex;flex-direction:column}
+.page + .page{break-before:page;page-break-before:always}
+
+/* ── шапка ─────────────────────────────────────────────── */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm}
+.name{font-size:37pt;font-weight:800;line-height:.9;letter-spacing:-1.2px}
+.name .b{color:var(--acc)}
+.role{margin-top:2.5mm;font-size:8pt;font-weight:700;letter-spacing:3.6px;border-bottom:2px solid var(--ink);padding-bottom:1.6mm;display:inline-block}
+.open{border:1px solid var(--ink);padding:1.6mm 2.6mm;font-size:6.2pt;letter-spacing:.6px;text-align:center;line-height:1.3;white-space:nowrap}
+.contacts{margin-top:3.2mm;font-size:7.2pt;color:var(--dim)}
+.contacts b{color:var(--ink);font-weight:500}
+.contacts .s{color:var(--acc);font-weight:700;margin:0 1.4mm}
+
+/* ── шапка второго листа ───────────────────────────────── */
+.p2top{display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:2px solid var(--ink);padding-bottom:2mm}
+.p2name{font-size:7.6pt;font-weight:700;letter-spacing:2.6px}
+.p2name .s{color:var(--acc);margin:0 1.2mm}
+.p2num{font-size:22pt;font-weight:800;line-height:.72;color:var(--acc);letter-spacing:-1.4px}
+
+/* ── секции ────────────────────────────────────────────── */
+.sec{margin-top:4.0mm}
+.sec-h{display:inline-block;background:var(--acc);color:#07110b;font-weight:800;
+  font-size:8pt;letter-spacing:1.4px;padding:.9mm 2.4mm;margin-bottom:1.9mm}
+p.lead{font-size:8.2pt;line-height:1.52;max-width:var(--measure)}
+p.lead b{color:var(--acc)}
+
+/* ── стек ──────────────────────────────────────────────── */
+.stack{display:grid;grid-template-columns:20mm 1fr;gap:0}
+.stack .k{font-size:6.6pt;font-weight:700;letter-spacing:.8px;color:var(--dim);
+  border-bottom:1px solid var(--line);padding:1.0mm 0;display:flex;align-items:center}
+.stack .v{border-bottom:1px solid var(--line);padding:0.9mm 0;display:flex;flex-wrap:wrap;gap:1.2mm}
+.t{border:1px solid var(--line);padding:.5mm 1.5mm;font-size:7pt;white-space:nowrap}
+.t.hi{background:var(--acc);color:#07110b;border-color:var(--acc);font-weight:700}
+
+/* ── опыт и проекты ────────────────────────────────────── */
+.job{margin-bottom:2.4mm}
+.job-h{display:flex;justify-content:space-between;align-items:baseline;gap:4mm}
+.job-t{font-size:10pt;font-weight:800;letter-spacing:.2px}
+.job-c{font-size:7.6pt;font-weight:700;color:var(--ink)}
+.when{border:1px solid var(--line);padding:.7mm 1.8mm;font-size:6.4pt;letter-spacing:.7px;white-space:nowrap;color:var(--dim)}
+.dash{border-bottom:1px dashed var(--line);margin:1.0mm 0}
+ul{list-style:none}
+/* Мера строки. Без ограничения пункт растягивался на всю полосу набора —
+   186 мм, это 111 знаков моноширинного при комфортных 60–75. Переносятся
+   24 пункта из 29, то есть глаз терял начало следующей строки почти везде.
+   88 знаков — компромисс: строка становится обозримой, а лист не раздувается
+   на третью страницу. Интерлиньяж поднят с 1.42: длинной строке нужен
+   заметный зазор, иначе взгляд соскакивает на соседнюю. */
+li{position:relative;padding-left:3.4mm;margin-bottom:.7mm;font-size:7.9pt;
+  line-height:1.45;max-width:var(--measure)}
+li::before{content:"×";position:absolute;left:0;color:var(--acc);font-weight:700}
+li b{color:var(--acc);font-weight:700}
+.muted{color:var(--dim)}
+
+.prj{margin-bottom:1.1mm}
+.prj-t{font-size:9.6pt;font-weight:800;letter-spacing:.2px}
+.prj-t span{font-weight:400;font-size:7.6pt;letter-spacing:.9px;color:var(--ink)}
+.prj-l{font-size:6.4pt;letter-spacing:.7px;color:var(--dim);margin:.4mm 0 1mm}
+
+/* ── подвал ────────────────────────────────────────────── */
+.foot{margin-top:auto;border-top:1px solid var(--line);padding-top:2mm;
+  display:flex;justify-content:space-between;align-items:center;gap:6mm;font-size:6.6pt;color:var(--dim);letter-spacing:.6px}
+.foot .s{color:var(--acc);font-weight:700;margin:0 1mm}
+.bars{display:flex;gap:.7mm;align-items:flex-end;height:4mm}
+.bars i{display:block;width:.8mm;background:var(--ink)}
+
+
+/* QR на портфолио. Модули тёмные на СВЕТЛОЙ подложке жёстко заданными цветами,
+   а не токенами темы: код должен одинаково читаться и в тёмной версии, и в
+   напечатанной, а инвертированный QR берут не все сканеры. Проверен декодером
+   opencv — раскодировался в адрес портфолио. */
+.topright{display:flex;flex-direction:column;align-items:flex-end;gap:2.2mm}
+.qr{display:block;background:#e8e8e6;padding:1.1mm;border-radius:1mm;line-height:0}
+.qr svg{display:block;width:15mm;height:15mm;shape-rendering:crispEdges}
+
+
+/* ── светлая версия для печати ──────────────────────────
+   Тёмный фон под обрез хорош на экране, но на бумаге это полный картридж,
+   а часть рекрутёров резюме печатает. Тема включается классом на <html>,
+   содержимое НЕ дублируется — печатается тот же файл.
+   Фосфорный #7dff9e на белом нечитаем (контраст около 1.3:1), поэтому для
+   печати взят тот же тон, но тёмный: #0f7a3d даёт примерно 5:1 на белом.
+   Плашки секций и активные плитки стека при этом переворачиваются на белый
+   текст — иначе почти чёрная надпись легла бы на тёмно-зелёный фон. */
+html.light{--bg:#ffffff;--ink:#14141a;--dim:#5c5c62;--line:#d5d5da;--acc:#0f7a3d}
+html.light .sec-h{color:#ffffff}
+html.light .t.hi{color:#ffffff}
+html.light .qr{background:#ffffff}
+html.light .p2num{color:var(--acc)}
+
+@page{size:A4;margin:0}
+@media print{body{background:#fff}.page{margin:0;box-shadow:none}}
