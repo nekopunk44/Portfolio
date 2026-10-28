@@ -17,7 +17,7 @@ const copyDir = (from, to) => {
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
 
-for (const file of ["index.html", "robots.txt", "favicon.ico", "favicon.svg", "apple-touch-icon.png"]) {
+for (const file of ["index.html", "robots.txt", "favicon.ico", "favicon.svg", "apple-touch-icon.png", "og.jpg", "sitemap.xml"]) {
   fs.copyFileSync(path.join(root, file), path.join(dist, file));
 }
 for (const dir of ["img", "media", "models", "resume"]) {

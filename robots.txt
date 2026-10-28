@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://portfolio-six-theta-rx4y93ajyq.vercel.app/sitemap.xml
